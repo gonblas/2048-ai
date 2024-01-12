@@ -18,7 +18,7 @@ TITLE_FONT = ("Helvetica", 36, "bold")
 GAME_OVER_FONT = ("Helvetica", 48, "bold")
 GAME_OVER_FONT_COLOR = "#ffffff"
 WINNER_BG = "#ffcc00"
-LOSER_BG = "a39489"
+LOSER_BG = "#a39489"
 
 
 LABEL_FONT = ("Arimo", 40, "bold")

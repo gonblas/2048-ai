@@ -200,15 +200,21 @@ class Game(tk.Frame):
         self.update_ui()
         self.check_game_over()
     
-    def moves_exists(self): # Check possible moves in all directions
+    def moves_exists(self):
         for row in range(self.size):
             for col in range(self.size):
+                if self.matrix[row, col] == 0:
+                    return True 
                 directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
                 for dx, dy in directions:
                     new_row, new_col = row + dx, col + dy
-                    if 0 <= new_row < self.size and 0 <= new_col < self.size and self.matrix[row, col] == self.matrix[new_row, new_col]:
-                        return False 
-        return True
+                    if (
+                        0 <= new_row < self.size
+                        and 0 <= new_col < self.size
+                        and self.matrix[row, col] == self.matrix[new_row, new_col]
+                    ):
+                        return True  
+        return False 
     
     def check_game_over(self):
         if(any(2048 in row for row in self.matrix)):
@@ -221,7 +227,7 @@ class Game(tk.Frame):
                 fg=GAME_OVER_FONT_COLOR,
                 font=GAME_OVER_FONT
             ).pack()
-        elif(not any(0 in row for row in self.matrix) and (not self.moves_exists())):
+        elif(not self.moves_exists()):
             game_over_frame = tk.Frame(self.main_grid, borderwidth=2)
             game_over_frame.place(relx=0.5, rely=0.5, anchor="center")
             tk.Label(
@@ -231,9 +237,12 @@ class Game(tk.Frame):
                 fg=GAME_OVER_FONT_COLOR,
                 font=GAME_OVER_FONT
             ).pack()
-            
+    
     
     
 if __name__ == "__main__":
-    app = Game(2)
+    app = Game(4)
     app.mainloop()
+
+
+#TODO: TENGO QUE AGREGAR LAS FONTS, MEJORAR LA PRESENTACION DEL SCORE Y DEL TITULO, DAR LA OPCION DE ELEGIR POR LA VENTANA EL TAMAÑO DEL TABLERO 3X3, 4X4, 5X5,6X6,8X8, Y TAMBIEN SI SE JUEGA EN MODO USUARIO O IA, Y SI LA IA ESTA ENTRENADA O QUE EMPIECE A ENTRENAR DESDE 0. METER TODO LO DE LA IA.
