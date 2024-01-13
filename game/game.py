@@ -11,6 +11,7 @@ class Game(Frame):
         Frame.__init__(self)
         self.grid()
         self.size = size
+        self.high_score = 0
         
         # Window Config.
         self.master.title("2048")
@@ -19,10 +20,17 @@ class Game(Frame):
         self.master.config(background=BACKGROUND_COLOR)
         
         # Grid config
-        self.main_grid = Frame(
+        self.background = Frame(
             self, 
+            bg=GAME_COLOR,
+            width=GRID_SIZE + 200, 
+            height=GRID_SIZE + 400
+        )
+        self.background.grid(row=0, column=0)
+        self.main_grid = Frame(
+            self.background, 
             bg=GRID_COLOR,
-            bd=5, 
+            bd=2, 
             width=GRID_SIZE, 
             height=GRID_SIZE
         )
@@ -62,54 +70,76 @@ class Game(Frame):
                 row.append(cell_data)
             self.cells.append(row)
         
-        self.make_scores()
+        self.make_menu()
 
         self.make_title()
-        
 
-    def make_scores(self):
-        score_frame = Frame(self)
-        score_frame.place(relx=0.8, y=45, anchor="center")
-        # Score Label
+
+    def make_menu(self):
+        # Crear un Frame contenedor para el menú
+        menu_frame = Frame(self.background, bg=GAME_COLOR,)
+
+        # Frame para Score
+        self.score_frame = Frame(menu_frame, bg=BUTTON_COLOR, bd=2, relief=GROOVE)
+        self.score_frame.grid(row=0, column=0, padx=10, pady=10)
+
         Label(
-            score_frame,
+            self.score_frame,
             text="Score",
-            font=SCORE_LABEL_FONT
+            font=("Helvetica", 16),
+            bg=BUTTON_COLOR,
+            padx=15,
+            pady=5,
         ).grid(row=0, column=0)
 
-        self.score_label = Label(score_frame, text="0", font=SCORE_FONT)
+        self.score_label = Label(self.score_frame, text="0", font=("Helvetica", 14), bg=BUTTON_COLOR, pady=5)
         self.score_label.grid(row=1, column=0)
 
-        # High Score Label
-        Label(
-            score_frame,
-            text="High Score",
-            font=SCORE_LABEL_FONT
-        ).grid(row=0, column=1)
+        # Frame para High Score
+        self.high_score_frame = Frame(menu_frame, bg=BUTTON_COLOR, bd=2, relief=GROOVE)
+        self.high_score_frame.grid(row=0, column=1, padx=10, pady=10)
 
-        self.high_score_label = Label(score_frame, text="0", font=SCORE_FONT)
-        self.high_score_label.grid(row=1, column=1)
+        Label(
+            self.high_score_frame,
+            text="High Score",
+            font=("Helvetica", 16),
+            bg=BUTTON_COLOR,
+            padx=15,
+            pady=5,
+        ).grid(row=0, column=0)
+
+        self.high_score_label = Label(self.high_score_frame, text="0", font=("Helvetica", 14), bg=BUTTON_COLOR, pady=5)
+        self.high_score_label.grid(row=1, column=0)
         
+        button = Button(menu_frame, text="Haz clic", command=self.init_game, bg=BUTTON_COLOR)
+        button.grid(row=0, column=2, columnspan=2, pady=10)
+
+        menu_frame.place(relx=0.5, y=45, anchor="center")
+
+    
+    def boton_clic(self):
+        pass
+
+
+
+
+
     def make_title(self):
-        title_frame = Frame(self)
-        title_frame.place(x=20, y=20)
+        title_frame = Frame(self.background, bg=GAME_COLOR)
+        title_frame.place(x=20, y=45)
         
         custom_font = Font(family="Helvetica", size=50)
         
-        title_label = Label(title_frame, text="2048", font=custom_font)
-        title_label.pack()
-    
-    def load_font(self, file_path):
-        pil_font = ImageFont.load(file_path)
-        return font.Font(root=self, font=pil_font)
-    
+        title_label = Label(title_frame, text="2048", bg=GAME_COLOR, font=custom_font)
+        title_label.pack(padx=20)
+
     def init_game(self):
         self.matrix = np.zeros((self.size, self.size), dtype=int)
         self.add_new_tile(2)
         self.add_new_tile(2)
         self.score = 0
         self.update_ui()
-    
+
     def update_ui(self):
         for x in range(self.size):
             for y in range(self.size):
@@ -127,17 +157,10 @@ class Game(Frame):
                         font=CARD_COLORS[cell_value]["font"],
                         text=str(cell_value))
         self.score_label.configure(text=self.score)
+        if(self.score > self.high_score):
+            self.high_score = self.score
+            self.high_score_label.configure(text=self.high_score)
         self.update_idletasks()
-
-    # def add_new_tile(self, number: int = 2): # random.choice([2, 4])
-    #     row = random.randint(0, self.size-1)
-    #     col = random.randint(0, self.size-1)
-        
-    #     while(self.matrix[row][col] != 0):
-    #         row = random.randint(0, self.size-1)
-    #         col = random.randint(0, self.size-1)
-        
-    #     self.matrix[row, col] = number
     
     def add_new_tile(self, number = None):
         if (number is None):
@@ -165,7 +188,6 @@ class Game(Frame):
                     self.matrix[x][y+1] = 0
                     self.score += self.matrix[x][y]
     
-    
     def move_left(self, event):
         self.stack()
         self.combine()
@@ -183,14 +205,6 @@ class Game(Frame):
         self.add_new_tile()
         self.update_ui()
         self.check_game_over()
-
-    # def move_up(self, event):
-    #     self.matrix = np.transpose(self.matrix)
-    #     self.stack()
-    #     self.combine()
-    #     self.matrix = np.transpose(self.matrix)
-    #     self.add_new_tile()
-    #     self.update_ui()
     
     def move_up(self, event):
         self.matrix = np.rot90(self.matrix, k=1)   # Rotar 90 grados en sentido horario
@@ -202,16 +216,6 @@ class Game(Frame):
         self.update_ui()
         self.check_game_over()
     
-    # def move_down(self, event): #puedo hacer un 90grados antihorario
-    #     self.matrix = np.transpose(self.matrix)
-    #     self.matrix = np.rot90(self.matrix, k=2)
-    #     self.stack()
-    #     self.combine()
-    #     self.matrix = np.rot90(self.matrix, k=2)
-    #     self.matrix = np.transpose(self.matrix)
-    #     self.add_new_tile()
-    #     self.update_ui()
-        
     def move_down(self, event):
         self.matrix = np.rot90(self.matrix, k=-1)  
         self.stack()
@@ -259,8 +263,6 @@ class Game(Frame):
                 fg=GAME_OVER_FONT_COLOR,
                 font=GAME_OVER_FONT
             ).pack()
-    
-    
     
 if __name__ == "__main__":
     app = Game(4)

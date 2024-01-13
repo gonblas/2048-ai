@@ -12,7 +12,7 @@ GAME_OVER_FONT = ("Roboto Mono", 48, "bold")
 GAME_OVER_FONT_COLOR = "#ffffff"
 WINNER_BG = "#ffcc00"
 LOSER_BG = "#a39489"
-BACKGROUND_COLOR = "#000000"
+BACKGROUND_COLOR = "#00FF00"
 
 
 
@@ -20,9 +20,10 @@ LABEL_FONT = ("Arimo", 40, "bold")
 #"#a6bdbb"
 #"#BBAEA5"
 #"#CFC1B3"
-GAME_COLOR = "#BBADA0"
+GAME_COLOR = "#fbf8ef"
 GRID_COLOR = "#BBADA0"
 EMPTY_COLOR = "#D6CDC4"
+BUTTON_COLOR = "#bbada0"
 
 CARD_COLORS = {
     2: {"tile_color": "#eee4da", "label_color": "#695c57", "font": ("Roboto Mono", 55, "bold")},
