@@ -7,7 +7,7 @@ from PIL import Image, ImageFont, ImageTk
 
 
 class Game(Frame):
-    def __init__(self, size):
+    def __init__(self, size, user_mode: bool = True):
         Frame.__init__(self)
         self.grid()
         self.size = size
@@ -48,11 +48,11 @@ class Game(Frame):
         
         
         #Initialize Directions
-        self.master.bind("<Left>", self.move_left)
-        self.master.bind("<Right>", self.move_right)
-        self.master.bind("<Up>", self.move_up)
-        self.master.bind("<Down>", self.move_down)
-    
+        if(user_mode):
+            self.master.bind("<Left>", self.move_left)
+            self.master.bind("<Right>", self.move_right)
+            self.master.bind("<Up>", self.move_up)
+            self.master.bind("<Down>", self.move_down)
     
     def make_UI(self):
         #Number grid
@@ -77,10 +77,9 @@ class Game(Frame):
 
         self.make_title()
 
-
     def make_menu(self):
         # Crear un Frame contenedor para el menu
-        menu_frame = Frame(self.background, bg=GAME_COLOR,)
+        menu_frame = Frame(self.background, bg=GAME_COLOR)
 
         # Frame para Score
         self.score_frame = Frame(menu_frame, bg=BUTTON_COLOR)
@@ -119,12 +118,7 @@ class Game(Frame):
         button = Button(menu_frame, image=self.img, command=self.init_game, bg=BUTTON_COLOR)
         button.grid(row=0, column=2, columnspan=2, pady=10)
 
-        menu_frame.place(relx=0.5, y=30, anchor="center")
-    
-
-
-
-
+        menu_frame.place(relx=0.8, y=30, anchor="center")
 
     def make_title(self):
         title_frame = Frame(self.background, bg=GAME_COLOR)
@@ -196,7 +190,7 @@ class Game(Frame):
         self.stack()
         self.add_new_tile()
         self.update_ui()
-        self.check_game_over()
+        return self.check_game_over()
     
     def move_right(self, event):
         self.matrix = np.rot90(self.matrix, k=2)
@@ -206,7 +200,7 @@ class Game(Frame):
         self.matrix = np.rot90(self.matrix, k=2)
         self.add_new_tile()
         self.update_ui()
-        self.check_game_over()
+        return self.check_game_over()
     
     def move_up(self, event):
         self.matrix = np.rot90(self.matrix, k=1)   # Rotar 90 grados en sentido horario
@@ -216,7 +210,7 @@ class Game(Frame):
         self.matrix = np.rot90(self.matrix, k=-1)  # Rotar 90 grados en sentido antihorario
         self.add_new_tile()
         self.update_ui()
-        self.check_game_over()
+        return self.check_game_over()
     
     def move_down(self, event):
         self.matrix = np.rot90(self.matrix, k=-1)  
@@ -226,7 +220,7 @@ class Game(Frame):
         self.matrix = np.rot90(self.matrix, k=1)   
         self.add_new_tile()
         self.update_ui()
-        self.check_game_over()
+        return self.check_game_over()
     
     def moves_exists(self):
         for row in range(self.size):
@@ -255,6 +249,7 @@ class Game(Frame):
                 fg=GAME_OVER_FONT_COLOR,
                 font=GAME_OVER_FONT
             ).pack()
+            return False
         elif(not self.moves_exists()):
             game_over_frame = Frame(self.main_grid, borderwidth=2)
             game_over_frame.place(relx=0.5, rely=0.5, anchor="center")
@@ -265,10 +260,25 @@ class Game(Frame):
                 fg=GAME_OVER_FONT_COLOR,
                 font=GAME_OVER_FONT
             ).pack()
+            return True
     
+    def play_step(self, action):
+        actions_mapping = {
+            (1, 0, 0, 0): self.move_up,
+            (0, 1, 0, 0): self.move_right,
+            (0, 0, 1, 0): self.move_down,
+            (0, 0, 0, 1): self.move_left
+        }
+
+        last_score = self.score
+        action_function = actions_mapping[tuple(action)]
+        done = action_function()
+        reward = self.score - last_score
+        return reward, done, self.score
+
 if __name__ == "__main__":
     app = Game(4)
     app.mainloop()
 
 
-#TODO: TENGO QUE AGREGAR LAS FONTS, MEJORAR LA PRESENTACION DEL SCORE Y DEL TITULO, DAR LA OPCION DE ELEGIR POR LA VENTANA EL TAMAÑO DEL TABLERO 3X3, 4X4, 5X5,6X6,8X8, Y TAMBIEN SI SE JUEGA EN MODO USUARIO O IA, Y SI LA IA ESTA ENTRENADA O QUE EMPIECE A ENTRENAR DESDE 0. METER TODO LO DE LA IA.
+#TODO: TENGO QUE AGREGAR LAS FONTS, MEJORAR LA PRESENTACION DEL SCORE Y DEL TITULO, DAR LA OPCION DE ELEGIR POR LA VENTANA EL TAMAÑO DEL TABLERO 3X3, 4X4, 5X5, 6X6, 8X8, Y TAMBIEN SI SE JUEGA EN MODO USUARIO O IA, Y SI LA IA ESTA ENTRENADA O QUE EMPIECE A ENTRENAR DESDE 0. METER TODO LO DE LA IA.
