@@ -1,26 +1,42 @@
-import tkinter as tk
+from tkinter import *
+from tkinter.font import Font
 from settings import *
 import random
 import numpy as np
+from PIL import Image, ImageFont, ImageTk
 
 
-class Game(tk.Frame):
+class Game(Frame):
     def __init__(self, size):
-        tk.Frame.__init__(self)
+        Frame.__init__(self)
         self.grid()
         self.size = size
-        self.master.title("2048")
-        # self.master.iconbitmap("@../assets/icon.ico")
         
-        self.main_grid = tk.Frame(
-            self, bg=GRID_COLOR, bd=3, width=GRID_SIZE, height=GRID_SIZE
+        # Window Config.
+        self.master.title("2048")
+        icon = PhotoImage(file="assets/icon.png")
+        self.master.iconphoto(True, icon)
+        self.master.config(background=BACKGROUND_COLOR)
+        
+        # Grid config
+        self.main_grid = Frame(
+            self, 
+            bg=GRID_COLOR,
+            bd=5, 
+            width=GRID_SIZE, 
+            height=GRID_SIZE
         )
+        
         self.main_grid.grid(
             pady=(100,0)
         )
+        
+        # Initialize GUI
         self.make_UI()
         self.init_game()
         
+        
+        #Initialize Directions
         self.master.bind("<Left>", self.move_left)
         self.master.bind("<Right>", self.move_right)
         self.master.bind("<Up>", self.move_up)
@@ -33,53 +49,59 @@ class Game(tk.Frame):
         for x in range(self.size):
             row = []
             for y in range(self.size):
-                cell_frame =tk.Frame(
+                cell_frame =Frame(
                     self.main_grid,
                     bg=EMPTY_COLOR,
                     width = GRID_SIZE / self.size,
                     height = GRID_SIZE / self.size
                 )
                 cell_frame.grid(row=x, column=y, padx=5, pady=5)
-                cell_number = tk.Label(self.main_grid, bg=EMPTY_COLOR)
+                cell_number = Label(self.main_grid, bg=EMPTY_COLOR)
                 cell_number.grid(row=x, column=y)
                 cell_data = {"frame": cell_frame, "number": cell_number}
                 row.append(cell_data)
             self.cells.append(row)
         
-
         self.make_scores()
+
         self.make_title()
         
 
     def make_scores(self):
-        score_frame = tk.Frame(self)
+        score_frame = Frame(self)
         score_frame.place(relx=0.8, y=45, anchor="center")
         # Score Label
-        tk.Label(
+        Label(
             score_frame,
             text="Score",
             font=SCORE_LABEL_FONT
         ).grid(row=0, column=0)
 
-        self.score_label = tk.Label(score_frame, text="0", font=SCORE_FONT)
+        self.score_label = Label(score_frame, text="0", font=SCORE_FONT)
         self.score_label.grid(row=1, column=0)
 
         # High Score Label
-        tk.Label(
+        Label(
             score_frame,
             text="High Score",
             font=SCORE_LABEL_FONT
         ).grid(row=0, column=1)
 
-        self.high_score_label = tk.Label(score_frame, text="0", font=SCORE_FONT)
+        self.high_score_label = Label(score_frame, text="0", font=SCORE_FONT)
         self.high_score_label.grid(row=1, column=1)
         
     def make_title(self):
-        title_frame = tk.Frame(self)
+        title_frame = Frame(self)
         title_frame.place(x=20, y=20)
-
-        title_label = tk.Label(title_frame, text="2048", font=("Arial", 24, "bold"))
+        
+        custom_font = Font(family="Helvetica", size=50)
+        
+        title_label = Label(title_frame, text="2048", font=custom_font)
         title_label.pack()
+    
+    def load_font(self, file_path):
+        pil_font = ImageFont.load(file_path)
+        return font.Font(root=self, font=pil_font)
     
     def init_game(self):
         self.matrix = np.zeros((self.size, self.size), dtype=int)
@@ -218,9 +240,9 @@ class Game(tk.Frame):
     
     def check_game_over(self):
         if(any(2048 in row for row in self.matrix)):
-            game_over_frame = tk.Frame(self.main_grid, borderwidth=2)
+            game_over_frame = Frame(self.main_grid, borderwidth=2)
             game_over_frame.place(relx=0.5, rely=0.5, anchor="center")
-            tk.Label(
+            Label(
                 game_over_frame,
                 text="You Win!",
                 bg=WINNER_BG,
@@ -228,9 +250,9 @@ class Game(tk.Frame):
                 font=GAME_OVER_FONT
             ).pack()
         elif(not self.moves_exists()):
-            game_over_frame = tk.Frame(self.main_grid, borderwidth=2)
+            game_over_frame = Frame(self.main_grid, borderwidth=2)
             game_over_frame.place(relx=0.5, rely=0.5, anchor="center")
-            tk.Label(
+            Label(
                 game_over_frame,
                 text="Game Over!",
                 bg=LOSER_BG,
