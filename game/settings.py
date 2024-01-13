@@ -12,7 +12,6 @@ GAME_OVER_FONT = ("Roboto Mono", 48, "bold")
 GAME_OVER_FONT_COLOR = "#ffffff"
 WINNER_BG = "#ffcc00"
 LOSER_BG = "#a39489"
-BACKGROUND_COLOR = "#00FF00"
 
 
 

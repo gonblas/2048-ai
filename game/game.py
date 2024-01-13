@@ -13,11 +13,13 @@ class Game(Frame):
         self.size = size
         self.high_score = 0
         
+        self.img = PhotoImage(file="assets/change.png")
+        
         # Window Config.
         self.master.title("2048")
-        icon = PhotoImage(file="assets/icon.png")
-        self.master.iconphoto(True, icon)
-        self.master.config(background=BACKGROUND_COLOR)
+        self.icon = PhotoImage(file="assets/icon.png")
+        self.master.iconphoto(True, self.icon)
+        self.master.config(background=GAME_COLOR)
         
         # Grid config
         self.background = Frame(
@@ -36,7 +38,8 @@ class Game(Frame):
         )
         
         self.main_grid.grid(
-            pady=(100,0)
+            padx=12,
+            pady=(70, 0)
         )
         
         # Initialize GUI
@@ -76,12 +79,13 @@ class Game(Frame):
 
 
     def make_menu(self):
-        # Crear un Frame contenedor para el menú
+        # Crear un Frame contenedor para el menu
         menu_frame = Frame(self.background, bg=GAME_COLOR,)
 
         # Frame para Score
-        self.score_frame = Frame(menu_frame, bg=BUTTON_COLOR, bd=2, relief=GROOVE)
-        self.score_frame.grid(row=0, column=0, padx=10, pady=10)
+        self.score_frame = Frame(menu_frame, bg=BUTTON_COLOR)
+        self.score_frame.grid(row=0, column=0, padx=10, pady=0)
+        
 
         Label(
             self.score_frame,
@@ -96,7 +100,7 @@ class Game(Frame):
         self.score_label.grid(row=1, column=0)
 
         # Frame para High Score
-        self.high_score_frame = Frame(menu_frame, bg=BUTTON_COLOR, bd=2, relief=GROOVE)
+        self.high_score_frame = Frame(menu_frame, bg=BUTTON_COLOR)
         self.high_score_frame.grid(row=0, column=1, padx=10, pady=10)
 
         Label(
@@ -111,14 +115,12 @@ class Game(Frame):
         self.high_score_label = Label(self.high_score_frame, text="0", font=("Helvetica", 14), bg=BUTTON_COLOR, pady=5)
         self.high_score_label.grid(row=1, column=0)
         
-        button = Button(menu_frame, text="Haz clic", command=self.init_game, bg=BUTTON_COLOR)
+        # Restart game
+        button = Button(menu_frame, image=self.img, command=self.init_game, bg=BUTTON_COLOR)
         button.grid(row=0, column=2, columnspan=2, pady=10)
 
-        menu_frame.place(relx=0.5, y=45, anchor="center")
-
+        menu_frame.place(relx=0.5, y=30, anchor="center")
     
-    def boton_clic(self):
-        pass
 
 
 
@@ -126,7 +128,7 @@ class Game(Frame):
 
     def make_title(self):
         title_frame = Frame(self.background, bg=GAME_COLOR)
-        title_frame.place(x=20, y=45)
+        title_frame.place(x=20, y=30)
         
         custom_font = Font(family="Helvetica", size=50)
         
