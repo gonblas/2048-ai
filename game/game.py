@@ -1,8 +1,9 @@
 from tkinter import *
 from tkinter.font import Font
-from settings import *
+from game.settings import *
 import random
 import numpy as np
+import os
 from PIL import Image, ImageFont, ImageTk
 
 
@@ -13,12 +14,20 @@ class Game(Frame):
         self.size = size
         self.high_score = 0
         
-        self.img = PhotoImage(file="assets/change.png")
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+
+        # Retrocede una carpeta
+        parent_dir = os.path.dirname(script_dir)
+
+        # Construye la ruta al archivo de imagen
+        img_path = os.path.join(parent_dir, "assets/change.png")
+
+        self.img = PhotoImage(file=img_path)
         
         # Window Config.
         self.master.title("2048")
-        self.icon = PhotoImage(file="assets/icon.png")
-        self.master.iconphoto(True, self.icon)
+        # self.icon = PhotoImage(file="/assets/icon.png")
+        # self.master.iconphoto(True, self.icon)
         self.master.config(background=GAME_COLOR)
         
         # Grid config
@@ -53,6 +62,7 @@ class Game(Frame):
             self.master.bind("<Right>", self.move_right)
             self.master.bind("<Up>", self.move_up)
             self.master.bind("<Down>", self.move_down)
+        self.mainloop()
     
     def make_UI(self):
         #Number grid
@@ -276,9 +286,6 @@ class Game(Frame):
         reward = self.score - last_score
         return reward, done, self.score
 
-if __name__ == "__main__":
-    app = Game(4)
-    app.mainloop()
 
 
 #TODO: TENGO QUE AGREGAR LAS FONTS, MEJORAR LA PRESENTACION DEL SCORE Y DEL TITULO, DAR LA OPCION DE ELEGIR POR LA VENTANA EL TAMAÑO DEL TABLERO 3X3, 4X4, 5X5, 6X6, 8X8, Y TAMBIEN SI SE JUEGA EN MODO USUARIO O IA, Y SI LA IA ESTA ENTRENADA O QUE EMPIECE A ENTRENAR DESDE 0. METER TODO LO DE LA IA.
