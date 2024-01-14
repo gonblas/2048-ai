@@ -5,9 +5,9 @@ import numpy as np
 from collections import deque
 from typing import List
 from game.game import Game
-
 from ai.model import FNN_Model, Trainer
 from ai.plot import Plot
+import time
 class Agent():
     def __init__(self, size) -> None:
         self.n_games = 0
@@ -20,7 +20,8 @@ class Agent():
         
     #quizas podria pasarle si hay posiciones en las cuales pierde
     def get_status(self, board: List[List[float]]) -> torch.Tensor:
-        return torch.Tensor(board).view(-1)
+        # Especifica las dimensiones al crear el tensor
+        return torch.Tensor(board).view(1, -1)
 
 
 
@@ -73,6 +74,7 @@ def train(board_size):
         new_state = agent.get_status(game.matrix)
         agent.train_short_memory(old_state, final_move, reward, new_state, done)
         agent.remember(old_state, final_move, reward, new_state, done)
+        time.sleep(0.1)
 
         if(done): #If game finished
             game.reset()

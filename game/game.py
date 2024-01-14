@@ -146,17 +146,37 @@ class Game(Frame):
         self.score = 0
         self.update_ui()
 
+    # def update_GUI(self):
+    #     for i in range(4):
+    #         for j in range(4):
+    #             cell_value = self.matrix[i][j]
+    #             if cell_value == 0:
+    #                 self.cells[i][j]["frame"].configure(bg=c.EMPTY_CELL_COLOR)
+    #                 self.cells[i][j]["number"].configure(
+    #                     bg=c.EMPTY_CELL_COLOR, text="")
+    #             else:
+    #                 self.cells[i][j]["frame"].configure(
+    #                     bg=c.CELL_COLORS[cell_value])
+    #                 self.cells[i][j]["number"].configure(
+    #                     bg=c.CELL_COLORS[cell_value],
+    #                     fg=c.CELL_NUMBER_COLORS[cell_value],
+    #                     font=c.CELL_NUMBER_FONTS[cell_value],
+    #                     text=str(cell_value))
+    #     self.score_label.configure(text=self.score)
+    #     self.update_idletasks()
+    
     def update_ui(self):
         for x in range(self.size):
             for y in range(self.size):
                 cell_value = self.matrix[x][y]
-                if cell_value == 0:
+                if not cell_value:
+                # if cell_value == 0:
                     self.cells[x][y]["frame"].configure(bg=EMPTY_COLOR)
                     self.cells[x][y]["number"].configure(
-                        bg=EMPTY_COLOR, text="")
+                        text="", bg=EMPTY_COLOR)
                 else:
                     self.cells[x][y]["frame"].configure(
-                        bg=CARD_COLORS[cell_value]["tile_color"]) #??? 
+                        bg=CARD_COLORS[cell_value]["tile_color"]) 
                     self.cells[x][y]["number"].configure(
                         bg=CARD_COLORS[cell_value]["tile_color"],
                         fg=CARD_COLORS[cell_value]["label_color"],
@@ -194,7 +214,7 @@ class Game(Frame):
                     self.matrix[x][y+1] = 0
                     self.score += self.matrix[x][y]
     
-    def move_left(self, event):
+    def move_left(self, event=None):
         self.stack()
         self.combine()
         self.stack()
@@ -202,7 +222,7 @@ class Game(Frame):
         self.update_ui()
         return self.check_game_over()
     
-    def move_right(self, event):
+    def move_right(self, event=None):
         self.matrix = np.rot90(self.matrix, k=2)
         self.stack()
         self.combine()
@@ -212,17 +232,17 @@ class Game(Frame):
         self.update_ui()
         return self.check_game_over()
     
-    def move_up(self, event):
-        self.matrix = np.rot90(self.matrix, k=1)   # Rotar 90 grados en sentido horario
+    def move_up(self, event=None):
+        self.matrix = np.rot90(self.matrix, k=1) 
         self.stack()
         self.combine()
-        self.stack()  # Necesitas apilar nuevamente después de combinar
-        self.matrix = np.rot90(self.matrix, k=-1)  # Rotar 90 grados en sentido antihorario
+        self.stack()  
+        self.matrix = np.rot90(self.matrix, k=-1)  
         self.add_new_tile()
         self.update_ui()
         return self.check_game_over()
     
-    def move_down(self, event):
+    def move_down(self, event=None):
         self.matrix = np.rot90(self.matrix, k=-1)  
         self.stack()
         self.combine()
@@ -282,7 +302,7 @@ class Game(Frame):
 
         last_score = self.score
         action_function = actions_mapping[tuple(action)]
-        done = action_function()
+        done = self.move_up() #cambiar a action_function()
         reward = self.score - last_score
         return reward, done, self.score
 
