@@ -1,3 +1,4 @@
+from http.client import CONTINUE
 import pygame
 from settings import *
 
@@ -7,18 +8,19 @@ class Board:
         self.size = size
         self.spacing = max(2, 12 - self.size)
         self.block_size = (GRID_SIZE - (self.size + 1) * self.spacing) / self.size
-        self.display_surface = screen
-        self.rect_outer = pygame.Rect(43, 98, GRID_SIZE + 4, GRID_SIZE + 4)  # Ajustado rectángulo exterior
-        self.border_radius = 8  # Ajusta el radio según sea necesario
+        self.screen = screen
+        self.rect_outer = pygame.Rect(43, 143, GRID_SIZE + 4, GRID_SIZE + 4)  # Ajustado rectángulo exterior
+        self.border_radius = 3  # Ajusta el radio según sea necesario
         self.rect_outer_color = pygame.Color(GRID_COLOR)
+
 
     def _draw_grid(self, matrix):
         # Dibujar el fondo del for con esquinas redondeadas
-        pygame.draw.rect(self.display_surface, GRID_COLOR, self.rect_outer, border_radius=self.border_radius)
+        pygame.draw.rect(self.screen, GRID_COLOR, self.rect_outer, border_radius=6)
 
         # Dibujar cuadrados con colores y números por fila con separación
         for row in range(self.size):
-            y = 100 + self.spacing + row * (self.block_size + self.spacing)
+            y = 145 + self.spacing + row * (self.block_size + self.spacing)
 
             for col in range(self.size):
                 x = 45 + self.spacing + col * (self.block_size + self.spacing)
@@ -30,15 +32,76 @@ class Board:
 
                 # Calcular el tamaño de la fuente basado en self.size
                 base_font_size = CARD[value]["font"][1]
-                font_size = int(base_font_size - (base_font_size * 0.15 * (self.size - 4)))  
+                font_size = int(base_font_size - (base_font_size * 0.15 * (self.size - 4)))
                 font = pygame.font.SysFont(CARD[value]["font"][0], font_size, CARD[value]["font"][2])
 
-                pygame.draw.rect(self.display_surface, tile_color, square_rect, border_radius=self.border_radius)
+                pygame.draw.rect(self.screen, tile_color, square_rect, border_radius=self.border_radius)
 
                 if value != 0:  # Si el valor es 0, no se muestra ningún número
                     label = font.render(str(value), True, label_color)
                     label_rect = label.get_rect(center=square_rect.center)
-                    self.display_surface.blit(label, label_rect)
+                    self.screen.blit(label, label_rect)
+
+
+
+    def game_over(self):
+        blur_surface = pygame.Surface((GRID_SIZE, GRID_SIZE), pygame.SRCALPHA)
+        blur_surface.fill((255, 255, 255, 100))  # Ajusta el color y la opacidad según sea necesario
+        blur_surface = pygame.transform.smoothscale(blur_surface, (int(GRID_SIZE / 4), int(GRID_SIZE / 4)))
+        blur_surface = pygame.transform.smoothscale(blur_surface, (GRID_SIZE+4, GRID_SIZE+4))
+
+        # Dibuja la superficie difuminada sobre el área del tablero
+        self.screen.blit(blur_surface, (43,143))
+        
+        #Game Over Title
+        font = pygame.font.Font(FONT_BOLD, 60)
+        title_text = font.render("Game Over!", True, TITLE_COLOR)
+        title_rect = title_text.get_rect(topleft=(WINDOW_WIDTH/2-155, WINDOW_HEIGHT/2))
+        self.screen.blit(title_text, title_rect)
+
+        # Dibuja el botón de repetir
+        font = pygame.font.Font(FONT_MEDIUM, 20) 
+        repeat_rect = pygame.Rect(WINDOW_WIDTH/2-85, WINDOW_HEIGHT/2 + 140 , MENU_WIDTH*2, MENU_HEIGHT)
+        pygame.draw.rect(self.screen, BUTTON_COLOR, repeat_rect, border_radius=3)
+        repeat_text = font.render("Try Again", True, NEW_GAME_TEXT)
+        repeat_text_rect = repeat_text.get_rect(center=(repeat_rect.centerx, repeat_rect.centery))
+        self.screen.blit(repeat_text, repeat_text_rect)
+
+        return repeat_rect
+    
+    
+    def win(self):
+        blur_surface = pygame.Surface((GRID_SIZE, GRID_SIZE), pygame.SRCALPHA)
+        blur_surface.fill((255, 255, 0, 50))  # Ajusta el color y la opacidad según sea necesario
+        blur_surface = pygame.transform.smoothscale(blur_surface, (int(GRID_SIZE / 4), int(GRID_SIZE / 4)))
+        blur_surface = pygame.transform.smoothscale(blur_surface, (GRID_SIZE+4, GRID_SIZE+4))
+
+        # Dibuja la superficie difuminada sobre el área del tablero
+        self.screen.blit(blur_surface, (43,143))
+        
+        #Game Over Title
+        font = pygame.font.Font(FONT_BOLD, 60)
+        title_text = font.render("You Won!", True, WHITE)
+        title_rect = title_text.get_rect(topleft=(WINDOW_WIDTH/2-125, WINDOW_HEIGHT/2))
+        self.screen.blit(title_text, title_rect)
+
+        # Dibuja el botón de repetir
+        font = pygame.font.Font(FONT_MEDIUM, 20) 
+        continue_rect = pygame.Rect(WINDOW_WIDTH/2-50, WINDOW_HEIGHT/2 + 140 , MENU_WIDTH + 50, MENU_HEIGHT)
+        pygame.draw.rect(self.screen, BUTTON_COLOR, continue_rect, border_radius=3)
+        continue_text = font.render("Keep Going", True, NEW_GAME_TEXT)
+        continue_text_rect = continue_text.get_rect(center=(continue_rect.centerx, continue_rect.centery))
+        self.screen.blit(continue_text, continue_text_rect)
+        
+        repeat_rect = pygame.Rect(WINDOW_WIDTH/2-100, WINDOW_HEIGHT/2 + 140 , MENU_WIDTH + 50, MENU_HEIGHT)
+        pygame.draw.rect(self.screen, BUTTON_COLOR, repeat_rect, border_radius=3)
+        repeat_text = font.render("Try Again", True, NEW_GAME_TEXT)
+        repeat_text_rect = repeat_text.get_rect(center=(repeat_rect.centerx, repeat_rect.centery))
+        self.screen.blit(repeat_text, repeat_text_rect)
+
+        return continue_rect, repeat_rect
+
+
 
     def update(self, matrix):
         self._draw_grid(matrix=matrix)
