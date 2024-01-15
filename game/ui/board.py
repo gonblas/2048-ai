@@ -87,13 +87,13 @@ class Board:
 
         # Dibuja el botón de repetir
         font = pygame.font.Font(FONT_MEDIUM, 20) 
-        continue_rect = pygame.Rect(WINDOW_WIDTH/2-50, WINDOW_HEIGHT/2 + 140 , MENU_WIDTH + 50, MENU_HEIGHT)
+        continue_rect = pygame.Rect(WINDOW_WIDTH/2+25, WINDOW_HEIGHT/2 + 140 , MENU_WIDTH + 50, MENU_HEIGHT)
         pygame.draw.rect(self.screen, BUTTON_COLOR, continue_rect, border_radius=3)
         continue_text = font.render("Keep Going", True, NEW_GAME_TEXT)
         continue_text_rect = continue_text.get_rect(center=(continue_rect.centerx, continue_rect.centery))
         self.screen.blit(continue_text, continue_text_rect)
         
-        repeat_rect = pygame.Rect(WINDOW_WIDTH/2-100, WINDOW_HEIGHT/2 + 140 , MENU_WIDTH + 50, MENU_HEIGHT)
+        repeat_rect = pygame.Rect(WINDOW_WIDTH/2-155, WINDOW_HEIGHT/2 + 140 , MENU_WIDTH + 50, MENU_HEIGHT)
         pygame.draw.rect(self.screen, BUTTON_COLOR, repeat_rect, border_radius=3)
         repeat_text = font.render("Try Again", True, NEW_GAME_TEXT)
         repeat_text_rect = repeat_text.get_rect(center=(repeat_rect.centerx, repeat_rect.centery))
