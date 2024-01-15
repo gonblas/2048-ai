@@ -1,10 +1,13 @@
 import pygame
 from settings import *
-from ui.board import *
-from ui.menu import *
+from ui.pregame import Pregame
+from ui.menu import Menu
+from ui.board import Board
 import numpy as np
 import random
+import sys
 
+# LD_PRELOAD=/usr/lib/libstdc++.so.6 python -u "/home/papadedios/Documents/Repos/2048-ai/game/game.py"
 
 class Game:
     def __init__(self, size: int = 4):
@@ -12,15 +15,16 @@ class Game:
         # Init data
         self.size = size
         self.high_score = 0 
-        self.moving = False #USAR O NO PARA SABER SI SE MOVIERON Y EN TAL CASO APARECER UNA NUEVA FICHA
         
-        self.matrix = np.zeros((self.size, self.size), dtype=int)
-
         # Pygame config
         pygame.display.set_caption("2048")
         self.clock = pygame.time.Clock()
         self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         self.screen.fill(pygame.Color(BACKGROUND_COLOR))
+        
+        # Pregame view
+        self.pregame = Pregame(self.screen, self.clock)
+        self.pregame.run()
         
         #Title
         self.add_title()
@@ -48,6 +52,7 @@ class Game:
         self.win = False
         self.first_time_won = False
         self.matrix = np.zeros((self.size, self.size), dtype=int)
+        self.old_matrix = np.zeros((self.size, self.size), dtype=int)
         self.add_new_tile(2)
         self.add_new_tile(2)
         self.score = 0
@@ -91,6 +96,7 @@ class Game:
         for event in pygame.event.get():
             if(event.type == pygame.QUIT):
                 pygame.quit()
+                sys.exit()
             elif((not self.game_over and not self.win) and event.type == pygame.KEYDOWN):
                 if event.key == pygame.K_UP:
                     self.move_up()
@@ -116,7 +122,6 @@ class Game:
                 if repeat_rect.collidepoint(event.pos):
                     self.init_game()
 
-# LD_PRELOAD=/usr/lib/libstdc++.so.6 python -u "/home/papadedios/Documents/Repos/2048-ai/game/game.py"
 
 
     def move_up(self):
@@ -124,8 +129,10 @@ class Game:
         self.stack()
         self.combine()
         self.stack()  
-        self.matrix = np.rot90(self.matrix, k=-1)  
-        self.add_new_tile()
+        self.matrix = np.rot90(self.matrix, k=-1)
+        if(not np.array_equal(self.matrix, self.old_matrix)):
+            self.add_new_tile()
+            self.old_matrix = self.matrix
         return self.check_game_over()
 
 
@@ -135,7 +142,9 @@ class Game:
         self.combine()
         self.stack()
         self.matrix = np.rot90(self.matrix, k=2)
-        self.add_new_tile()
+        if(not np.array_equal(self.matrix, self.old_matrix)):
+            self.add_new_tile()
+            self.old_matrix = self.matrix
         return self.check_game_over()
 
 
@@ -145,7 +154,9 @@ class Game:
         self.combine()
         self.stack()  
         self.matrix = np.rot90(self.matrix, k=1)   
-        self.add_new_tile()
+        if(not np.array_equal(self.matrix, self.old_matrix)):
+            self.add_new_tile()
+            self.old_matrix = self.matrix
         return self.check_game_over()
 
 
@@ -153,7 +164,9 @@ class Game:
         self.stack()
         self.combine()
         self.stack()
-        self.add_new_tile()
+        if(not np.array_equal(self.matrix, self.old_matrix)):
+            self.add_new_tile()
+            self.old_matrix = self.matrix
         return self.check_game_over()
 
 
@@ -179,7 +192,7 @@ class Game:
     def check_game_over(self):
         if(not self.first_time_won and any(4 in row for row in self.matrix)):
             self.board_ui.update(matrix = self.matrix)
-            self.continue_button, self.play_again_button = self.board_ui.win()
+            self.continue_button, self.play_again_button = self.board_ui.win(paint_background = True)
             self.win = True
             self.first_time_won = True
             return False
@@ -219,10 +232,10 @@ class Game:
         if(not self.game_over and not self.win):
             self.board_ui.update(matrix = self.matrix)
         pygame.display.flip()
-        self.clock.tick(60)
+        self.clock.tick(FPS)
 
 
 
 if __name__ == "__main__":
-    game = Game(size=4)
+    game = Game(size=2)
     game.run()

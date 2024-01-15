@@ -15,13 +15,15 @@ MENU_HEIGHT = 45
 POS_X_MENU = WINDOW_WIDTH - (1.4*MENU_WIDTH)
 POS_Y_MENU = 35
 
-
+# Time config
+FPS = 60
 
 # Fonts
 FONT_LIGHT = os.path.join(os.getcwd(),'assets', 'fonts', 'Ubuntu-Light.ttf')
 FONT_MEDIUM = os.path.join(os.getcwd(),'assets', 'fonts', 'Ubuntu-Medium.ttf')
 FONT_REGULAR = os.path.join(os.getcwd(),'assets', 'fonts', 'Ubuntu-Regular.ttf')
 FONT_BOLD = os.path.join(os.getcwd(),'assets', 'fonts', 'Ubuntu-Bold.ttf')
+
 
 
 # Colors
@@ -36,6 +38,7 @@ TEXT_COLOR = "#eee4da" #cambiar
 NEW_GAME_TEXT = "#f9f6f2"
 TITLE_COLOR = "#776e65"
 WHITE = "#FFFFFF"
+START_BUTTON_COLOR = "#ff775c"
 
 
 

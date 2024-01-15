@@ -3,6 +3,11 @@ import pygame
 from settings import *
 
 
+blur_surface_win = pygame.Surface((GRID_SIZE, GRID_SIZE), pygame.SRCALPHA)
+blur_surface_win.fill((255, 255, 0, 50))  # Ajusta el color y la opacidad según sea necesario
+blur_surface_win = pygame.transform.smoothscale(blur_surface_win, (GRID_SIZE+4, GRID_SIZE+4))
+
+
 class Board:
     def __init__(self, screen, size: int = 4):
         self.size = size
@@ -47,7 +52,6 @@ class Board:
     def game_over(self):
         blur_surface = pygame.Surface((GRID_SIZE, GRID_SIZE), pygame.SRCALPHA)
         blur_surface.fill((255, 255, 255, 100))  # Ajusta el color y la opacidad según sea necesario
-        blur_surface = pygame.transform.smoothscale(blur_surface, (int(GRID_SIZE / 4), int(GRID_SIZE / 4)))
         blur_surface = pygame.transform.smoothscale(blur_surface, (GRID_SIZE+4, GRID_SIZE+4))
 
         # Dibuja la superficie difuminada sobre el área del tablero
@@ -70,14 +74,9 @@ class Board:
         return repeat_rect
     
     
-    def win(self):
-        blur_surface = pygame.Surface((GRID_SIZE, GRID_SIZE), pygame.SRCALPHA)
-        blur_surface.fill((255, 255, 0, 50))  # Ajusta el color y la opacidad según sea necesario
-        blur_surface = pygame.transform.smoothscale(blur_surface, (int(GRID_SIZE / 4), int(GRID_SIZE / 4)))
-        blur_surface = pygame.transform.smoothscale(blur_surface, (GRID_SIZE+4, GRID_SIZE+4))
-
-        # Dibuja la superficie difuminada sobre el área del tablero
-        self.screen.blit(blur_surface, (43,143))
+    def win(self, paint_background: bool = False):
+        if(paint_background):
+            self.screen.blit(blur_surface_win, (43,143))
         
         #Game Over Title
         font = pygame.font.Font(FONT_BOLD, 60)
