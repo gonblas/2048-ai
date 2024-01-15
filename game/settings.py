@@ -32,15 +32,13 @@ GRID_COLOR = "#BBADA0"
 EMPTY_COLOR = "#D6CDC4"
 BUTTON_COLOR = "#8f7a66"
 SCORE_BOX_COLOR = "#bbada0"
-WINNER_BG = "#ffcc00"
-LOSER_BG = "#a39489"
-TEXT_COLOR = "#eee4da" #cambiar
+TEXT_COLOR = "#eee4da" 
 NEW_GAME_TEXT = "#f9f6f2"
 TITLE_COLOR = "#776e65"
 WHITE = "#FFFFFF"
 START_BUTTON_COLOR = "#ff775c"
-
-
+SELECTED_COLOR = "#ff775c"
+SWITCH_COLOR = "#776e65"
 
 # Card Settings
 

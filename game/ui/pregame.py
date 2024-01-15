@@ -1,5 +1,8 @@
 import pygame
 from settings import *
+from ui.switch import Switch
+
+
 
 class Pregame:
     def __init__(self, screen, clock):
@@ -9,7 +12,7 @@ class Pregame:
         self.waiting_for_start = True
 
 
-    def _handle_events(self):
+    def _handle_events(self): #poner que se devuelva el el size y el modo
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -17,7 +20,9 @@ class Pregame:
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                     self.waiting_for_start = False
-
+            # elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1: 
+            #     if switch_rect.collidepoint(event.pos):
+            #         self.switch.switch_state()
 
     def _draw_elements(self):
         pygame.draw.rect(self.screen, pygame.Color(BACKGROUND_COLOR), (0, 0, WINDOW_WIDTH, WINDOW_HEIGHT))
@@ -40,7 +45,12 @@ class Pregame:
         repeat_text_rect = repeat_text.get_rect(center=(repeat_rect.centerx, repeat_rect.centery))
         self.screen.blit(repeat_text, repeat_text_rect)
         
-        
+        # User mode vs AI mode
+        self.switch = Switch()
+        self.switch.draw(self.screen, (WINDOW_WIDTH/2-85, WINDOW_HEIGHT/2 + 220), (180, 40), 40, ["User", "AI"], TEXT_COLOR)
+
+
+
 
 
     def run(self) -> int:
@@ -48,4 +58,7 @@ class Pregame:
             self._handle_events()
             self._draw_elements()
             pygame.display.flip()
-            self.clock.tick(30)  
+            self.clock.tick(30)
+
+
+
