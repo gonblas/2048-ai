@@ -1,7 +1,7 @@
 import pygame
 from settings import *
 from ui.switch import Switch
-
+from ui.dropdown import Dropdown
 
 
 class Pregame:
@@ -9,10 +9,13 @@ class Pregame:
         self.size = 3
         self.screen = screen
         self.clock = clock
+        self.switch = Switch(self.screen, (WINDOW_WIDTH/2-85, WINDOW_HEIGHT/2 + 220), (180, 40), ["User", "AI"])
         self.waiting_for_start = True
+        self.user_mode = True
+        self.start_menu = Dropdown(self.screen)
 
 
-    def _handle_events(self): #poner que se devuelva el el size y el modo
+    def _handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -20,22 +23,13 @@ class Pregame:
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                     self.waiting_for_start = False
-            # elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1: 
-            #     if switch_rect.collidepoint(event.pos):
-            #         self.switch.switch_state()
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1: 
+                if self.switch.collidepoint(event.pos):
+                    self.user_mode = (self.switch.switch_state() == 0)
 
     def _draw_elements(self):
         pygame.draw.rect(self.screen, pygame.Color(BACKGROUND_COLOR), (0, 0, WINDOW_WIDTH, WINDOW_HEIGHT))
         self._add_title()
-        
-
-
-
-    def _add_title(self):
-        font = pygame.font.Font(FONT_BOLD, 90)  
-        title_text = font.render("2048", True, TITLE_COLOR)  
-        title_rect = title_text.get_rect(topleft=(WINDOW_WIDTH/2 - 100, 50))
-        self.screen.blit(title_text, title_rect)
         
         #Start Game
         font = pygame.font.Font(FONT_MEDIUM, 20) 
@@ -45,10 +39,21 @@ class Pregame:
         repeat_text_rect = repeat_text.get_rect(center=(repeat_rect.centerx, repeat_rect.centery))
         self.screen.blit(repeat_text, repeat_text_rect)
         
+        # Size 
+        self.start_menu.run()
+        
         # User mode vs AI mode
-        self.switch = Switch()
-        self.switch.draw(self.screen, (WINDOW_WIDTH/2-85, WINDOW_HEIGHT/2 + 220), (180, 40), 40, ["User", "AI"], TEXT_COLOR)
+        self.switch.draw()
+        
+        
 
+
+
+    def _add_title(self):
+        font = pygame.font.Font(FONT_BOLD, 90)  
+        title_text = font.render("2048", True, TITLE_COLOR)  
+        title_rect = title_text.get_rect(topleft=(WINDOW_WIDTH/2 - 100, 50))
+        self.screen.blit(title_text, title_rect)
 
 
 
