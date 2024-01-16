@@ -64,10 +64,6 @@ class Pregame:
 
 
 
-
-
-
-
     def run(self) -> int:
         while self.waiting_for_start:
             self._handle_events()

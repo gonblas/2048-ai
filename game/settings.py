@@ -60,8 +60,6 @@ CARD = {
 }
 
 
-
-
 # Board size options
 
 BOARD = {

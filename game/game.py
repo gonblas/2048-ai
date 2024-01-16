@@ -32,19 +32,19 @@ class Game:
         self.user_mode, self.size = self.pregame.run()
         
         #Title
-        self.add_title()
+        self._add_title()
 
         # UI and pygame
         pygame.init()
         self.menu_ui = Menu(self.screen)
         self.board_ui = Board(size = self.size, screen = self.screen)
 
-        # Init board and run
-        self.init_game()
-        self.run()
+        # Init board and _run
+        self._init_game()
+        self._run()
 
 
-    def add_title(self):
+    def _add_title(self):
         font = pygame.font.Font(FONT_BOLD, 80)  
         title_text = font.render("2048", True, TITLE_COLOR)  
         title_rect = title_text.get_rect(topleft=(45, 28))
@@ -52,19 +52,19 @@ class Game:
         return title_rect
 
 
-    def init_game(self):
+    def _init_game(self):
         self.game_over = False
         self.win = False
         self.first_time_won = False
         self.matrix = np.zeros((self.size, self.size), dtype=int)
         self.old_matrix = np.zeros((self.size, self.size), dtype=int)
-        self.add_new_tile(2)
-        self.add_new_tile(2)
+        self._add_new_tile(2)
+        self._add_new_tile(2)
         self.score = 0
-        self.update()
+        self._update()
 
 
-    def add_new_tile(self, number = None):
+    def _add_new_tile(self, number = None):
         if (number is None):
             number = np.random.choice([2, 4], p=[0.6, 0.4])
         empty_cells = list(zip(*np.where(self.matrix == 0)))
@@ -73,7 +73,7 @@ class Game:
             self.matrix[row, col] = number
 
 
-    def stack(self):
+    def _stack(self):
         new_matrix = np.zeros((self.size, self.size), dtype=int)
         for x in range(self.size):
             fill_pos = 0
@@ -84,7 +84,7 @@ class Game:
         self.matrix = new_matrix
 
 
-    def combine(self):
+    def _combine(self):
         for x in range(self.size):
             for y in range(self.size-1):
                 if((self.matrix[x][y] != 0) and (self.matrix[x][y] == self.matrix[x][y+1])):
@@ -93,7 +93,7 @@ class Game:
                     self.score += self.matrix[x][y]
 
 
-    def handle_events(self):
+    def _handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -105,82 +105,82 @@ class Game:
                     if continue_rect.collidepoint(event.pos):
                         self.win = False
                     elif play_again_rect.collidepoint(event.pos):
-                        self.init_game()
+                        self._init_game()
             
             elif self.game_over:
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     play_again_rect = self.play_again_button
                     if play_again_rect.collidepoint(event.pos):
-                        self.init_game()
+                        self._init_game()
             
             else:  # No win or game over
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_UP:
-                        self.move_up()
+                        self._move_up()
                     elif event.key == pygame.K_RIGHT:
-                        self.move_right()
+                        self._move_right()
                     elif event.key == pygame.K_DOWN:
-                        self.move_down()
+                        self._move_down()
                     elif event.key == pygame.K_LEFT:
-                        self.move_left()
+                        self._move_left()
                 
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     repeat_rect = self.menu_ui.draw_menu()
                     if repeat_rect.collidepoint(event.pos):
-                        self.init_game()
+                        self._init_game()
                     
-                    title_rect = self.add_title()
+                    title_rect = self._add_title()
                     if title_rect.collidepoint(event.pos):
                         self.reset()
 
 
-    def move_up(self):
+    def _move_up(self):
         self.matrix = np.rot90(self.matrix, k=1) 
-        self.stack()
-        self.combine()
-        self.stack()  
+        self._stack()
+        self._combine()
+        self._stack()  
         self.matrix = np.rot90(self.matrix, k=-1)
         if(not np.array_equal(self.matrix, self.old_matrix)):
-            self.add_new_tile()
+            self._add_new_tile()
             self.old_matrix = self.matrix
-        return self.check_game_over()
+        return self._check_game_over()
 
 
-    def move_right(self):
+    def _move_right(self):
         self.matrix = np.rot90(self.matrix, k=2)
-        self.stack()
-        self.combine()
-        self.stack()
+        self._stack()
+        self._combine()
+        self._stack()
         self.matrix = np.rot90(self.matrix, k=2)
         if(not np.array_equal(self.matrix, self.old_matrix)):
-            self.add_new_tile()
+            self._add_new_tile()
             self.old_matrix = self.matrix
-        return self.check_game_over()
+        return self._check_game_over()
 
 
-    def move_down(self):
+    def _move_down(self):
         self.matrix = np.rot90(self.matrix, k=-1)  
-        self.stack()
-        self.combine()
-        self.stack()  
+        self._stack()
+        self._combine()
+        self._stack()  
         self.matrix = np.rot90(self.matrix, k=1)   
         if(not np.array_equal(self.matrix, self.old_matrix)):
-            self.add_new_tile()
+            self._add_new_tile()
             self.old_matrix = self.matrix
-        return self.check_game_over()
+        return self._check_game_over()
 
 
-    def move_left(self):
-        self.stack()
-        self.combine()
-        self.stack()
+    def _move_left(self):
+        self._stack()
+        self._combine()
+        self._stack()
         if(not np.array_equal(self.matrix, self.old_matrix)):
-            self.add_new_tile()
+            self._add_new_tile()
             self.old_matrix = self.matrix
-        return self.check_game_over()
+        return self._check_game_over()
 
 
-    def moves_exists(self):
+    def _moves_exists(self):
         for row in range(self.size):
             for col in range(self.size):
                 if self.matrix[row, col] == 0:
@@ -197,44 +197,45 @@ class Game:
         return False 
 
 
-    def check_game_over(self):
+    def _check_game_over(self):
         if(not self.first_time_won and any(2048 in row for row in self.matrix)):
             self.board_ui.update(matrix = self.matrix)
             self.continue_button, self.play_again_button = self.board_ui.win(paint_background = True)
             self.win = True
             self.first_time_won = True
             return False
-        elif(not self.moves_exists()):
+        elif(not self._moves_exists()):
             self.game_over = True
             self.board_ui.update(matrix = self.matrix)
             self.play_again_button = self.board_ui.game_over()
             return True
 
 
-    def run(self):
+    def _run(self):
         while True:
-            self.handle_events()
+            self._handle_events()
             if(self.score > self.high_score):
                 self.high_score = self.score
-            self.update()
+            self._update()
 
 
     def play_step(self, action):
         actions_mapping = {
-            (1, 0, 0, 0): self.move_up,
-            (0, 1, 0, 0): self.move_right,
-            (0, 0, 1, 0): self.move_down,
-            (0, 0, 0, 1): self.move_left
+            (1, 0, 0, 0): self._move_up,
+            (0, 1, 0, 0): self._move_right,
+            (0, 0, 1, 0): self._move_down,
+            (0, 0, 0, 1): self._move_left
         }
 
         last_score = self.score
         action_function = actions_mapping[tuple(action)]
         done = action_function() 
         reward = self.score - last_score
+        #TODO: CAPAZ HAY QUE UPDATEAR
         return reward, done, self.score
 
 
-    def update(self):
+    def _update(self):
         self.menu_ui.update(self.score, self.high_score)
         if(not self.game_over and not self.win):
             self.board_ui.update(matrix = self.matrix)
@@ -245,4 +246,7 @@ class Game:
 
 if __name__ == "__main__":
     game = Game()
-    game.run()
+    game._run()
+
+
+#TODO: AGREGAR LA LOGICA DE USUARIO VS IA, DAR FACILIDADES PARA QUE LA IA PUEDA EJECUTAR DE CORRIDO Y AGREGAR SI SE QUIERE HACER DESDE CERO O CON ENTRENAMIENTO (QUIZAS). ADEMAS DE LA IA SE PUEDE AGREGAR ALGO QUE SOLUCIONE PARA PROBAR Y QUE NO SEA IA (EXTRA)

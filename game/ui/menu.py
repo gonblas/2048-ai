@@ -10,11 +10,8 @@ class Menu:
         self.score = 0
         self.high_score = 0
 
-        # Cargar imágenes si es necesario
-        # self.img = pygame.image.load("ruta_de_la_imagen.png")
 
-
-    def draw_menu(self):
+    def _draw_menu(self):
         border_radius = 3  # Ajusta según sea necesario
         padding = 8  # Espacio entre los rectángulos
         
@@ -59,6 +56,6 @@ class Menu:
     def update(self, new_score, new_high_score):
         repeat_button = self.score = new_score
         self.high_score = new_high_score
-        self.draw_menu()
+        self._draw_menu()
         pygame.display.flip()
         return repeat_button
