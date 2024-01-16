@@ -58,3 +58,16 @@ CARD = {
     4096: {"tile_color": "#000000", "label_color": "#ffffff", "font": (FONT_REGULAR, 65, "bold")},
     8192: {"tile_color": "#000000", "label_color": "#ffffff", "font": (FONT_REGULAR, 65, "bold")},
 }
+
+
+
+
+# Board size options
+
+BOARD = {
+    0: 3,
+    1: 4,
+    2: 5,
+    3: 6,
+    4: 8
+}
