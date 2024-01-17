@@ -1,6 +1,7 @@
 import pygame
 import sys
-from settings import *
+
+from game.settings import *
 
 class Switch:
     def __init__(self, screen, rect_position, rect_size, options):

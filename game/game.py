@@ -1,11 +1,14 @@
-import pygame
-from settings import *
-from ui.pregame import Pregame
-from ui.menu import Menu
-from ui.board import Board
 import numpy as np
+import pygame
 import random
 import sys
+
+from game.ui.pregame import Pregame
+from game.ui.board import Board
+from game.ui.menu import Menu
+from game.settings import *
+
+
 
 # LD_PRELOAD=/usr/lib/libstdc++.so.6 python -u "/home/papadedios/Documents/Repos/2048-ai/game/game.py"
 
@@ -113,25 +116,25 @@ class Game:
                     if play_again_rect.collidepoint(event.pos):
                         self._init_game()
             
-            else:  # No win or game over
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_UP:
-                        self._move_up()
-                    elif event.key == pygame.K_RIGHT:
-                        self._move_right()
-                    elif event.key == pygame.K_DOWN:
-                        self._move_down()
-                    elif event.key == pygame.K_LEFT:
-                        self._move_left()
+            # No win or game over and user mode
+            elif(self.user_mode and event.type == pygame.KEYDOWN):  
+                if event.key == pygame.K_UP:
+                    self._move_up()
+                elif event.key == pygame.K_RIGHT:
+                    self._move_right()
+                elif event.key == pygame.K_DOWN:
+                    self._move_down()
+                elif event.key == pygame.K_LEFT:
+                    self._move_left()
                 
-                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    repeat_rect = self.menu_ui.draw_menu()
-                    if repeat_rect.collidepoint(event.pos):
-                        self._init_game()
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                repeat_rect = self.menu_ui._draw_menu()
+                if repeat_rect.collidepoint(event.pos):
+                    self._init_game()
                     
-                    title_rect = self._add_title()
-                    if title_rect.collidepoint(event.pos):
-                        self.reset()
+                title_rect = self._add_title()
+                if title_rect.collidepoint(event.pos):
+                    self.reset()
 
 
     def _move_up(self):
@@ -249,4 +252,4 @@ if __name__ == "__main__":
     game._run()
 
 
-#TODO: AGREGAR LA LOGICA DE USUARIO VS IA, DAR FACILIDADES PARA QUE LA IA PUEDA EJECUTAR DE CORRIDO Y AGREGAR SI SE QUIERE HACER DESDE CERO O CON ENTRENAMIENTO (QUIZAS). ADEMAS DE LA IA SE PUEDE AGREGAR ALGO QUE SOLUCIONE PARA PROBAR Y QUE NO SEA IA (EXTRA)
+#TODO: DAR FACILIDADES PARA QUE LA IA PUEDA EJECUTAR DE CORRIDO Y AGREGAR SI SE QUIERE HACER DESDE CERO O CON ENTRENAMIENTO (QUIZAS). ADEMAS DE LA IA SE PUEDE AGREGAR ALGO QUE SOLUCIONE PARA PROBAR Y QUE NO SEA IA (EXTRA)

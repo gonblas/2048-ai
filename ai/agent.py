@@ -1,13 +1,16 @@
-from ai.ai_settings import *
-import torch 
-import random
-import numpy as np
 from collections import deque
 from typing import List
-from game.game import Game
-from ai.model import FNN_Model, Trainer
-from ai.plot import Plot
+import numpy as np
+import random
+import torch 
 import time
+
+from ai.model import FNN_Model, Trainer
+from ai.ai_settings import *
+from game.game import Game
+from ai.plot import Plot
+
+
 class Agent():
     def __init__(self, size) -> None:
         self.n_games = 0
@@ -17,7 +20,8 @@ class Agent():
         self.size = size
         self.model = FNN_Model(self.size**2, self.size**2 + 16, 4)
         self.trainer = Trainer(model=self.model, lr=LR, gamma=self.gamma)
-        
+
+
     #quizas podria pasarle si hay posiciones en las cuales pierde
     def get_status(self, board: List[List[float]]) -> torch.Tensor:
         # Especifica las dimensiones al crear el tensor

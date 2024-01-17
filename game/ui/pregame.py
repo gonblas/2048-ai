@@ -1,7 +1,8 @@
 import pygame
-from settings import *
-from ui.switch import Switch
-from ui.dropdown import Dropdown
+
+from game.ui.dropdown import Dropdown
+from game.ui.switch import Switch
+from game.settings import *
 
 
 class Pregame:

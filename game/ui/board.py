@@ -1,6 +1,6 @@
-from http.client import CONTINUE
 import pygame
-from settings import *
+
+from game.settings import *
 
 
 blur_surface_win = pygame.Surface((GRID_SIZE, GRID_SIZE), pygame.SRCALPHA)
