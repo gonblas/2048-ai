@@ -1,12 +1,15 @@
 import numpy as np
+import asyncio
 import pygame
 import random
 import sys
+import time
 
 from game.ui.pregame import Pregame
 from game.ui.board import Board
 from game.ui.menu import Menu
 from game.settings import *
+from ai.agent import train
 
 
 
@@ -43,8 +46,7 @@ class Game:
         self.board_ui = Board(size = self.size, screen = self.screen)
 
         # Init board and _run
-        self._init_game()
-        self._run()
+        asyncio.run(self._init_game())
 
 
     def _add_title(self):
@@ -55,7 +57,7 @@ class Game:
         return title_rect
 
 
-    def _init_game(self):
+    async def _init_game(self):
         self.game_over = False
         self.win = False
         self.first_time_won = False
@@ -65,11 +67,16 @@ class Game:
         self._add_new_tile(2)
         self.score = 0
         self._update()
+        if(self.user_mode):
+            self._run_in_user_mode()
+        else:
+            await train(self)
+
 
 
     def _add_new_tile(self, number = None):
         if (number is None):
-            number = np.random.choice([2, 4], p=[0.6, 0.4])
+            number = np.random.choice([2, 4], p=[SPAWN_TWO_PROBABILITY, 1 - SPAWN_TWO_PROBABILITY])
         empty_cells = list(zip(*np.where(self.matrix == 0)))
         if empty_cells:
             row, col = random.choice(empty_cells)
@@ -98,25 +105,24 @@ class Game:
 
     def _handle_events(self):
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if (event.type == pygame.QUIT):
                 pygame.quit()
                 sys.exit()
-            
+
             if self.win:
-                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if (event.type == pygame.MOUSEBUTTONDOWN and event.button == 1):
                     continue_rect, play_again_rect = self.board_ui.win()
-                    if continue_rect.collidepoint(event.pos):
+                    if (continue_rect.collidepoint(event.pos) or not self.user_mode):
                         self.win = False
-                    elif play_again_rect.collidepoint(event.pos):
-                        self._init_game()
+                    elif (play_again_rect.collidepoint(event.pos)):
+                        asyncio.run(self._init_game())
             
             elif self.game_over:
-                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if (event.type == pygame.MOUSEBUTTONDOWN and event.button == 1):
                     play_again_rect = self.play_again_button
-                    if play_again_rect.collidepoint(event.pos):
-                        self._init_game()
+                    if (play_again_rect.collidepoint(event.pos) or not self.user_mode):
+                        asyncio.run(self._init_game())
             
-            # No win or game over and user mode
             elif(self.user_mode and event.type == pygame.KEYDOWN):  
                 if event.key == pygame.K_UP:
                     self._move_up()
@@ -126,12 +132,11 @@ class Game:
                     self._move_down()
                 elif event.key == pygame.K_LEFT:
                     self._move_left()
-                
+            
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 repeat_rect = self.menu_ui._draw_menu()
                 if repeat_rect.collidepoint(event.pos):
-                    self._init_game()
-                    
+                    asyncio.run(self._init_game())
                 title_rect = self._add_title()
                 if title_rect.collidepoint(event.pos):
                     self.reset()
@@ -146,7 +151,9 @@ class Game:
         if(not np.array_equal(self.matrix, self.old_matrix)):
             self._add_new_tile()
             self.old_matrix = self.matrix
-        return self._check_game_over()
+        else:
+            return False
+        return not self._check_game_over()
 
 
     def _move_right(self):
@@ -158,7 +165,9 @@ class Game:
         if(not np.array_equal(self.matrix, self.old_matrix)):
             self._add_new_tile()
             self.old_matrix = self.matrix
-        return self._check_game_over()
+        else:
+            return False
+        return not self._check_game_over()
 
 
     def _move_down(self):
@@ -170,7 +179,9 @@ class Game:
         if(not np.array_equal(self.matrix, self.old_matrix)):
             self._add_new_tile()
             self.old_matrix = self.matrix
-        return self._check_game_over()
+        else:
+            return False
+        return not self._check_game_over()
 
 
     def _move_left(self):
@@ -180,7 +191,9 @@ class Game:
         if(not np.array_equal(self.matrix, self.old_matrix)):
             self._add_new_tile()
             self.old_matrix = self.matrix
-        return self._check_game_over()
+        else:
+            return False
+        return not self._check_game_over()
 
 
     def _moves_exists(self):
@@ -214,15 +227,13 @@ class Game:
             return True
 
 
-    def _run(self):
+    def _run_in_user_mode(self):
         while True:
             self._handle_events()
-            if(self.score > self.high_score):
-                self.high_score = self.score
             self._update()
 
 
-    def play_step(self, action):
+    def possible_move(self, action):
         actions_mapping = {
             (1, 0, 0, 0): self._move_up,
             (0, 1, 0, 0): self._move_right,
@@ -232,13 +243,17 @@ class Game:
 
         last_score = self.score
         action_function = actions_mapping[tuple(action)]
-        done = action_function() 
-        reward = self.score - last_score
-        #TODO: CAPAZ HAY QUE UPDATEAR
-        return reward, done, self.score
+        return  action_function()
+        # reward = self.score - last_score
+        # self._update()
+        # print(done)
+        # return reward, done, self.score
+
 
 
     def _update(self):
+        if(self.score > self.high_score):
+            self.high_score = self.score
         self.menu_ui.update(self.score, self.high_score)
         if(not self.game_over and not self.win):
             self.board_ui.update(matrix = self.matrix)
@@ -249,7 +264,6 @@ class Game:
 
 if __name__ == "__main__":
     game = Game()
-    game._run()
 
 
 #TODO: DAR FACILIDADES PARA QUE LA IA PUEDA EJECUTAR DE CORRIDO Y AGREGAR SI SE QUIERE HACER DESDE CERO O CON ENTRENAMIENTO (QUIZAS). ADEMAS DE LA IA SE PUEDE AGREGAR ALGO QUE SOLUCIONE PARA PROBAR Y QUE NO SEA IA (EXTRA)

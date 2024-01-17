@@ -2,12 +2,12 @@ from collections import deque
 from typing import List
 import numpy as np
 import random
+import asyncio
 import torch 
 import time
 
 from ai.model import FNN_Model, Trainer
 from ai.ai_settings import *
-from game.game import Game
 from ai.plot import Plot
 
 
@@ -22,10 +22,11 @@ class Agent():
         self.trainer = Trainer(model=self.model, lr=LR, gamma=self.gamma)
 
 
-    #quizas podria pasarle si hay posiciones en las cuales pierde
+    def get_possible_actions(self, board):
+        pass
+
     def get_status(self, board: List[List[float]]) -> torch.Tensor:
-        # Especifica las dimensiones al crear el tensor
-        return torch.Tensor(board).view(1, -1)
+        return torch.Tensor(np.array(board.copy())).view(1, -1)
 
 
 
@@ -64,12 +65,11 @@ class Agent():
         return final_move
 
 
-def train(board_size):
+async def train(game):
     plot_scores = []
     plot_mean_scores = []
     total_score = 0
     record = 0
-    game = Game(board_size, user_mode=False)
     agent = Agent(game.size)
     while(True):
         old_state = agent.get_status(game.matrix)
@@ -91,12 +91,13 @@ def train(board_size):
             
             print("Game", agent.n_games, "Score", score, "Record", record)
             
-            #TODO: plot 
             plot_scores.append(score)
             total_score += score
             mean_score = total_score / agent.n_games
             plot_mean_scores.append(mean_score)
             Plot(plot_scores, plot_mean_scores)
+        
+        game._handle_events()
 
 
 if __name__ == "__main__":

@@ -59,6 +59,7 @@ CARD = {
     8192: {"tile_color": "#000000", "label_color": "#ffffff", "font": (FONT_REGULAR, 65, "bold")},
 }
 
+SPAWN_TWO_PROBABILITY = 0.9
 
 # Board size options
 

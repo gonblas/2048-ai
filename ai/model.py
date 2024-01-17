@@ -54,14 +54,19 @@ class Trainer:
         next_state = torch.tensor(next_state, dtype=torch.float)
         action = torch.tensor(action, dtype=torch.long)
         reward = torch.tensor(reward, dtype=torch.float)
-        
+
+        if done is not None:
+            done = torch.tensor(done, dtype=torch.bool) if isinstance(done, bool) else torch.tensor(done, dtype=torch.bool)
+        else:
+            done = torch.tensor(False, dtype=torch.bool)
+
         # Si la dimensión de state es 1, agregar una dimensión adicional
         if len(state.shape) == 1:
             state = torch.unsqueeze(state, 0)
             next_state = torch.unsqueeze(next_state, 0)
             action = torch.unsqueeze(action, 0)
             reward = torch.unsqueeze(reward, 0)
-            done = torch.tensor([done], dtype=torch.bool)
+            done = torch.unsqueeze(done, 0)
 
         # 1: Obtener las predicciones Q con el estado actual
         pred = self.model(state)
@@ -70,7 +75,7 @@ class Trainer:
         targets = pred.clone()
         for idx in range(len(done)):
             Q_new = reward[idx]
-            if not done[idx]:
+            if not done[idx].item():
                 Q_new = reward[idx] + self.gamma * torch.max(self.model(next_state[idx]))
 
             targets[idx][torch.argmax(action[idx]).item()] = Q_new
