@@ -123,15 +123,9 @@ class Game:
                     if (play_again_rect.collidepoint(event.pos) or not self.user_mode):
                         asyncio.run(self._init_game())
             
-            elif(self.user_mode and event.type == pygame.KEYDOWN):  
-                if event.key == pygame.K_UP:
-                    self._move_up()
-                elif event.key == pygame.K_RIGHT:
-                    self._move_right()
-                elif event.key == pygame.K_DOWN:
-                    self._move_down()
-                elif event.key == pygame.K_LEFT:
-                    self._move_left()
+            elif self.user_mode and event.type == pygame.KEYDOWN:
+                if event.key in move_functions:
+                    self._move(move_functions[event.key])
             
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 repeat_rect = self.menu_ui._draw_menu()
@@ -141,6 +135,22 @@ class Game:
                 if title_rect.collidepoint(event.pos):
                     self.reset()
 
+
+    def _move(self, direction: str = None):
+        if direction is None:
+            return
+
+        try:
+            getattr(self, f"{direction}")()
+        except KeyError:
+            raise ValueError("Dirección de movimiento invalida.")
+
+        if not np.array_equal(self.matrix, self.old_matrix):
+            self._add_new_tile()
+        else:
+            return False
+
+        return not self._check_game_over()
 
     def _move_up(self):
         self.matrix = np.rot90(self.matrix, k=1) 
@@ -155,7 +165,6 @@ class Game:
             return False
         return not self._check_game_over()
 
-
     def _move_right(self):
         self.matrix = np.rot90(self.matrix, k=2)
         self._stack()
@@ -169,7 +178,6 @@ class Game:
             return False
         return not self._check_game_over()
 
-
     def _move_down(self):
         self.matrix = np.rot90(self.matrix, k=-1)  
         self._stack()
@@ -182,7 +190,6 @@ class Game:
         else:
             return False
         return not self._check_game_over()
-
 
     def _move_left(self):
         self._stack()

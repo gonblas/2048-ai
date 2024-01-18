@@ -1,5 +1,6 @@
 #SIN USO POR EL MOMENTO
 from turtle import window_height
+import pygame
 from os.path import join
 import os
 
@@ -69,4 +70,12 @@ BOARD = {
     2: 5,
     3: 6,
     4: 8
+}
+
+
+move_functions = {
+        pygame.K_UP: "_move_up",
+        pygame.K_RIGHT: "_move_right",
+        pygame.K_DOWN: "_move_down",
+        pygame.K_LEFT: "_move_left",
 }
