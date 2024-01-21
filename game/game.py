@@ -75,6 +75,7 @@ class Game:
             self._run_in_user_mode()
         else:
             self.mcts = MCTS_AI(self.size)
+            self.paused = False
             self._run_in_ai_mode()
 
 
@@ -128,6 +129,9 @@ class Game:
             elif self.user_mode and event.type == pygame.KEYDOWN:
                 if event.key in move_functions:
                     self._move(move_functions[event.key])
+            
+            elif not self.user_mode and event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                self.paused = not self.paused
             
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 title_rect = self._add_title()
@@ -241,6 +245,9 @@ class Game:
         move_number = 0
         valid_game = True
         while True:
+            if(self.paused):
+                self._handle_events()
+                continue
             move_number += 1
             number_of_simulations, search_length = self.mcts.get_search_params(move_number)
             self.matrix, valid_game, new_score = self.mcts.ai_move(self.matrix, number_of_simulations, search_length)
