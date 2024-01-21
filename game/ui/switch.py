@@ -1,5 +1,5 @@
 import pygame
-import sys
+from icecream import ic
 
 from game.settings import *
 
@@ -13,7 +13,12 @@ class Switch:
         self.font = pygame.font.Font(FONT_REGULAR, 22)
 
     def switch_state(self):
-        self.selected_option = 1 - self.selected_option
+        viejo = self.selected_option
+        if self.selected_option == 0:
+            self.selected_option = 1
+        else:
+            self.selected_option = 0
+
 
     def draw(self):
         half_width = self.rect_size[0] // 2
@@ -35,22 +40,25 @@ class Switch:
 
         self.screen.blit(text_left, left_text_rect)
         self.screen.blit(text_right, right_text_rect)
+        
+        return left_rect, right_rect
 
     def collidepoint(self, point):
         half_width = self.rect_size[0] // 2
-        left_rect = pygame.Rect(self.rect_position, (half_width, self.rect_size[1]))
-        right_rect = pygame.Rect((self.rect_position[0] + half_width, self.rect_position[1]),
-                                (half_width, self.rect_size[1]))
+        left_rect, right_rect = (pygame.Rect(self.rect_position, (half_width, self.rect_size[1])),
+                                pygame.Rect((self.rect_position[0] + half_width, self.rect_position[1]),
+                                (half_width, self.rect_size[1])))
 
         # Check if the click is in the left rectangle
-        if (left_rect.collidepoint(point)):
-            if self.selected_option != 1:
+        if left_rect.collidepoint(point):
+            if self.selected_option != 0:
                 self.switch_state()
             return True
 
         # Check if the click is in the right rectangle
-        elif (right_rect.collidepoint(point)):
-            if self.selected_option != 0:
+        elif right_rect.collidepoint(point):
+            if self.selected_option != 1:
                 self.switch_state()
             return True
+
         return False

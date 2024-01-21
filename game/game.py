@@ -1,15 +1,17 @@
+from icecream import ic
 import numpy as np
 import asyncio
 import pygame
 import random
-import sys
 import time
+import sys
 
 from game.ui.pregame import Pregame
 from game.ui.board import Board
 from game.ui.menu import Menu
 from game.settings import *
 from ai.agent import train
+from ai.mcts_ai import MCTS_AI
 
 
 
@@ -39,14 +41,15 @@ class Game:
         
         #Title
         self._add_title()
-
+        
         # UI and pygame
         pygame.init()
         self.menu_ui = Menu(self.screen)
         self.board_ui = Board(size = self.size, screen = self.screen)
-
+        
         # Init board and _run
-        asyncio.run(self._init_game())
+        self._init_game()
+
 
 
     def _add_title(self):
@@ -57,12 +60,13 @@ class Game:
         return title_rect
 
 
-    async def _init_game(self):
+    def _init_game(self):
         self.game_over = False
         self.win = False
         self.first_time_won = False
         self.matrix = np.zeros((self.size, self.size), dtype=int)
         self.old_matrix = np.zeros((self.size, self.size), dtype=int)
+        ic(self.matrix)
         self._add_new_tile(2)
         self._add_new_tile(2)
         self.score = 0
@@ -70,7 +74,8 @@ class Game:
         if(self.user_mode):
             self._run_in_user_mode()
         else:
-            await train(self)
+            self.mcts = MCTS_AI(self.size)
+            self._run_in_ai_mode()
 
 
 
@@ -82,7 +87,6 @@ class Game:
             row, col = random.choice(empty_cells)
             self.matrix[row, col] = number
 
-
     def _stack(self):
         new_matrix = np.zeros((self.size, self.size), dtype=int)
         for x in range(self.size):
@@ -93,7 +97,6 @@ class Game:
                     fill_pos += 1
         self.matrix = new_matrix
 
-
     def _combine(self):
         for x in range(self.size):
             for y in range(self.size-1):
@@ -102,39 +105,37 @@ class Game:
                     self.matrix[x][y+1] = 0
                     self.score += self.matrix[x][y]
 
-
     def _handle_events(self):
         for event in pygame.event.get():
             if (event.type == pygame.QUIT):
                 pygame.quit()
                 sys.exit()
-
+            
             if self.win:
                 if (event.type == pygame.MOUSEBUTTONDOWN and event.button == 1):
                     continue_rect, play_again_rect = self.board_ui.win()
                     if (continue_rect.collidepoint(event.pos) or not self.user_mode):
                         self.win = False
                     elif (play_again_rect.collidepoint(event.pos)):
-                        asyncio.run(self._init_game())
+                        self._init_game()
             
             elif self.game_over:
                 if (event.type == pygame.MOUSEBUTTONDOWN and event.button == 1):
                     play_again_rect = self.play_again_button
                     if (play_again_rect.collidepoint(event.pos) or not self.user_mode):
-                        asyncio.run(self._init_game())
+                        self._init_game()
             
             elif self.user_mode and event.type == pygame.KEYDOWN:
                 if event.key in move_functions:
                     self._move(move_functions[event.key])
             
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                repeat_rect = self.menu_ui._draw_menu()
-                if repeat_rect.collidepoint(event.pos):
-                    asyncio.run(self._init_game())
                 title_rect = self._add_title()
                 if title_rect.collidepoint(event.pos):
                     self.reset()
-
+                repeat_rect = self.menu_ui._draw_menu()
+                if repeat_rect.collidepoint(event.pos):
+                    self._init_game()
 
     def _move(self, direction: str = None):
         if direction is None:
@@ -202,7 +203,6 @@ class Game:
             return False
         return not self._check_game_over()
 
-
     def _moves_exists(self):
         for row in range(self.size):
             for col in range(self.size):
@@ -219,7 +219,6 @@ class Game:
                         return True  
         return False 
 
-
     def _check_game_over(self):
         if(not self.first_time_won and any(2048 in row for row in self.matrix)):
             self.board_ui.update(matrix = self.matrix)
@@ -233,29 +232,29 @@ class Game:
             self.play_again_button = self.board_ui.game_over()
             return True
 
-
     def _run_in_user_mode(self):
         while True:
             self._handle_events()
             self._update()
 
-
-    def possible_move(self, action):
-        actions_mapping = {
-            (1, 0, 0, 0): self._move_up,
-            (0, 1, 0, 0): self._move_right,
-            (0, 0, 1, 0): self._move_down,
-            (0, 0, 0, 1): self._move_left
-        }
-
-        last_score = self.score
-        action_function = actions_mapping[tuple(action)]
-        return  action_function()
-        # reward = self.score - last_score
-        # self._update()
-        # print(done)
-        # return reward, done, self.score
-
+    def _run_in_ai_mode(self):
+        move_number = 0
+        valid_game = True
+        while True:
+            move_number += 1
+            number_of_simulations, search_length = self.mcts.get_search_params(move_number)
+            self.matrix, valid_game, new_score = self.mcts.ai_move(self.matrix, number_of_simulations, search_length)
+            if valid_game:
+                self.score += new_score
+                self._add_new_tile()
+            else:
+                self.game_over = True
+                self.board_ui.update(matrix = self.matrix)
+                self.play_again_button = self.board_ui.game_over()
+                ic(move_number)
+            self._update()
+            pygame.time.delay(100)
+            self._handle_events()
 
 
     def _update(self):
@@ -267,10 +266,3 @@ class Game:
         pygame.display.flip()
         self.clock.tick(FPS)
 
-
-
-if __name__ == "__main__":
-    game = Game()
-
-
-#TODO: DAR FACILIDADES PARA QUE LA IA PUEDA EJECUTAR DE CORRIDO Y AGREGAR SI SE QUIERE HACER DESDE CERO O CON ENTRENAMIENTO (QUIZAS). ADEMAS DE LA IA SE PUEDE AGREGAR ALGO QUE SOLUCIONE PARA PROBAR Y QUE NO SEA IA (EXTRA)
