@@ -66,7 +66,6 @@ class Game:
         self.first_time_won = False
         self.matrix = np.zeros((self.size, self.size), dtype=int)
         self.old_matrix = np.zeros((self.size, self.size), dtype=int)
-        ic(self.matrix)
         self._add_new_tile(2)
         self._add_new_tile(2)
         self.score = 0
@@ -77,7 +76,6 @@ class Game:
             self.mcts = MCTS_AI(self.size)
             self.paused = False
             self._run_in_ai_mode()
-
 
 
     def _add_new_tile(self, number = None):
@@ -240,9 +238,13 @@ class Game:
         while True:
             self._handle_events()
             self._update()
-
+    
+    #MCTS
     def _run_in_ai_mode(self):
         move_number = 0
+        # wins = 0
+        # game_overs = 0
+        # win = False
         valid_game = True
         while True:
             if(self.paused):
@@ -253,15 +255,41 @@ class Game:
             self.matrix, valid_game, new_score = self.mcts.ai_move(self.matrix, number_of_simulations, search_length)
             if valid_game:
                 self.score += new_score
+                # if(2048 in self.matrix):
+                #     win = True
                 self._add_new_tile()
             else:
-                self.game_over = True
-                self.board_ui.update(matrix = self.matrix)
-                self.play_again_button = self.board_ui.game_over()
-                ic(move_number)
+                # if(win):
+                #     wins += 1
+                # else:
+                #     game_overs += 1
+                # ic(wins)
+                # ic(game_overs)
+                win = False
+                self._init_game()
             self._update()
             pygame.time.delay(100)
             self._handle_events()
+
+
+
+    # def _run_in_ai_mode(self):
+    #     valid_game = True
+    #     while True:
+    #         if(self.paused):
+    #             self._handle_events()
+    #             continue
+    #         move_number += 1
+    #         number_of_simulations, search_length = self.mcts.get_search_params(move_number)
+    #         self.matrix, valid_game, new_score = self.mcts.ai_move(self.matrix, number_of_simulations, search_length)
+    #         if valid_game:
+    #             self.score += new_score
+    #             self._add_new_tile()
+    #         else:
+    #             self._init_game()
+    #         self._update()
+    #         pygame.time.delay(100)
+    #         self._handle_events()
 
 
     def _update(self):
@@ -272,4 +300,3 @@ class Game:
             self.board_ui.update(matrix = self.matrix)
         pygame.display.flip()
         self.clock.tick(FPS)
-

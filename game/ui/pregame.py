@@ -26,7 +26,6 @@ class Pregame:
                     self.waiting_for_start = False
                 elif self.switch.collidepoint(event.pos):
                     self.user_mode = (self.switch.selected_option == 0)
-                    ic(self.user_mode)
                 elif self.dropdown.position[0] <= event.pos[0] <= self.dropdown.position[0] + self.dropdown.size[0] and \
                     self.dropdown.position[1] <= event.pos[1] <= self.dropdown.position[1] + self.dropdown.size[1]:
                     self.dropdown.toggle()

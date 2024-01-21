@@ -13,7 +13,6 @@ class Switch:
         self.font = pygame.font.Font(FONT_REGULAR, 22)
 
     def switch_state(self):
-        viejo = self.selected_option
         if self.selected_option == 0:
             self.selected_option = 1
         else:
