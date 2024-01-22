@@ -66,7 +66,9 @@ class Game:
         self.matrix = np.zeros((self.size, self.size), dtype=int)
         self.old_matrix = np.zeros((self.size, self.size), dtype=int)
         self._add_new_tile(2)
-        self._add_new_tile(2)
+        self._add_new_tile(256*2)
+        self._add_new_tile(1024)
+        self._add_new_tile(16384)
         self.score = 0
         self._update()
         if(self.user_mode):

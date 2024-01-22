@@ -13,8 +13,8 @@ class Menu:
 
 
     def _draw_menu(self):
-        border_radius = 3  # Ajusta según sea necesario
-        padding = 8  # Espacio entre los rectángulos
+        border_radius = 3  
+        padding = 8  
         
         score_rect = pygame.Rect(POS_X_MENU - (MENU_WIDTH + padding), POS_Y_MENU*2+padding, MENU_WIDTH, MENU_HEIGHT)
         

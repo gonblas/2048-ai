@@ -26,22 +26,28 @@ class Board:
         # Dibujar cuadrados con colores y números por fila con separación
         for row in range(self.size):
             y = 145 + self.spacing + row * (self.block_size + self.spacing)
-
             for col in range(self.size):
                 x = 45 + self.spacing + col * (self.block_size + self.spacing)
                 square_rect = pygame.Rect(x, y, self.block_size, self.block_size)
-                
                 value = matrix[row][col]
-                tile_color = CARD[value]["tile_color"]
-                label_color = CARD[value]["label_color"]
-
-                # Calcular el tamaño de la fuente basado en self.size
-                base_font_size = CARD[value]["font"][1]
-                font_size = int(base_font_size - (base_font_size * 0.15 * (self.size - 4)))
-                font = pygame.font.SysFont(CARD[value]["font"][0], font_size, CARD[value]["font"][2])
-
+                
+                #Set colors
+                if value >= 4096:
+                    tile_color = CARD[4096]["tile_color"]
+                    label_color = CARD[4096]["label_color"]
+                else:
+                    tile_color = CARD[value]["tile_color"]
+                    label_color = CARD[value]["label_color"]
+                
+                #Set font size
+                digit_count = len(str(value))
+                font_size = CARD_BASE_FONT_SIZE - 8 * (digit_count - 1)
+                font_size = int(font_size - (font_size * 0.14 * (self.size - 4)))
+                font = pygame.font.SysFont(FONT_BOLD, font_size, FONT_STYLE)
+                
+                
                 pygame.draw.rect(self.screen, tile_color, square_rect, border_radius=self.border_radius)
-
+                
                 if value != 0:  # Si el valor es 0, no se muestra ningún número
                     label = font.render(str(value), True, label_color)
                     label_rect = label.get_rect(center=square_rect.center)
@@ -51,7 +57,7 @@ class Board:
 
     def game_over(self):
         blur_surface = pygame.Surface((GRID_SIZE, GRID_SIZE), pygame.SRCALPHA)
-        blur_surface.fill((255, 255, 255, 100))  # Ajusta el color y la opacidad según sea necesario
+        blur_surface.fill((238, 228, 218, 73))  # Ajusta el color y la opacidad según sea necesario
         blur_surface = pygame.transform.smoothscale(blur_surface, (GRID_SIZE+4, GRID_SIZE+4))
 
         # Dibuja la superficie difuminada sobre el área del tablero

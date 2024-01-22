@@ -11,10 +11,10 @@ class Expectiminimax:
     def __init__(self, size):
         self.size = size
         
-        self.position_multipliers = [[2,   2**2, 2**3, 2**4], 
-                [2**8, 2**7, 2**6, 2**5],
-                [2**9, 2**10,2**11,2**12],
-                [2**16,2**15,2**14,2**13]] #Hardcodeado para 4x4
+        self.position_multipliers = [[2**13,   2**12, 2**11, 2**10], 
+                                    [2**14, 2**13, 2**12, 2**11],
+                                    [2**15, 2**14,2**13,2**12],
+                                    [2**16,2**15,2**14,2**13]] 
 
 
     def snakeHeuristic(self, board):

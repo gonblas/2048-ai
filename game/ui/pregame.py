@@ -45,7 +45,7 @@ class Pregame:
         
         #Start Game
         font = pygame.font.Font(FONT_MEDIUM, 20)
-        self.start_rect = pygame.Rect(WINDOW_WIDTH/2-143, WINDOW_HEIGHT/2 + 190, MENU_WIDTH*2 + 100, MENU_HEIGHT)
+        self.start_rect = pygame.Rect(WINDOW_WIDTH/2-143, WINDOW_HEIGHT/2 + 190, 280, MENU_HEIGHT)
         pygame.draw.rect(self.screen, START_BUTTON_COLOR, self.start_rect, border_radius=3)
         start_text = font.render("Start Game", True, NEW_GAME_TEXT)
         start_text_rect = start_text.get_rect(center=(self.start_rect.centerx, self.start_rect.centery))
