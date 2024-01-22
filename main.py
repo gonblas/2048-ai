@@ -1,10 +1,11 @@
 from game.game import Game
 from ai.agent import train
 
-def play_game():
+# LD_PRELOAD=/usr/lib/libstdc++.so.6 python -u "/home/papadedios/Documents/Repos/2048-ai/main.py"
+
+def main():
     game = Game()
-    game.action = (1,0,0,0)
-    game.ai_action_available = True
+
 
 if __name__ == "__main__":
-    play_game()
+    main()

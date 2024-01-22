@@ -1,7 +1,7 @@
 import numpy as np
 
 from ai.ai_settings import *
-from mcts.functions import *
+from ai.mcts.functions import *
 
 
 class MCTS_AI:

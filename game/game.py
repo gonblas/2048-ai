@@ -1,21 +1,19 @@
+import multiprocessing as mp
 from icecream import ic
 import numpy as np
-import asyncio
 import pygame
 import random
-import time
 import sys
 
 from game.ui.pregame import Pregame
 from game.ui.board import Board
 from game.ui.menu import Menu
 from game.settings import *
-from ai.agent import train
 from ai.mcts_ai import MCTS_AI
+from ai.expectiminimax.expectiminimax import *
 
 
 
-# LD_PRELOAD=/usr/lib/libstdc++.so.6 python -u "/home/papadedios/Documents/Repos/2048-ai/game/game.py"
 
 class Game:
     def __init__(self):
@@ -60,6 +58,7 @@ class Game:
         return title_rect
 
 
+
     def _init_game(self):
         self.game_over = False
         self.win = False
@@ -73,9 +72,12 @@ class Game:
         if(self.user_mode):
             self._run_in_user_mode()
         else:
-            self.mcts = MCTS_AI(self.size)
+            # self.mcts = MCTS_AI(self.size)
+            self.ai = Expectiminimax(self.size)
+            self.pool = mp.Pool(processes=2)
             self.paused = False
             self._run_in_ai_mode()
+
 
 
     def _add_new_tile(self, number = None):
@@ -142,7 +144,6 @@ class Game:
     def _move(self, direction: str = None):
         if direction is None:
             return
-
         try:
             getattr(self, f"{direction}")()
         except KeyError:
@@ -152,7 +153,6 @@ class Game:
             self._add_new_tile()
         else:
             return False
-
         return not self._check_game_over()
 
     def _move_up(self):
@@ -240,40 +240,11 @@ class Game:
             self._update()
     
     #MCTS
-    def _run_in_ai_mode(self):
-        move_number = 0
-        # wins = 0
-        # game_overs = 0
-        # win = False
-        valid_game = True
-        while True:
-            if(self.paused):
-                self._handle_events()
-                continue
-            move_number += 1
-            number_of_simulations, search_length = self.mcts.get_search_params(move_number)
-            self.matrix, valid_game, new_score = self.mcts.ai_move(self.matrix, number_of_simulations, search_length)
-            if valid_game:
-                self.score += new_score
-                # if(2048 in self.matrix):
-                #     win = True
-                self._add_new_tile()
-            else:
-                # if(win):
-                #     wins += 1
-                # else:
-                #     game_overs += 1
-                # ic(wins)
-                # ic(game_overs)
-                win = False
-                self._init_game()
-            self._update()
-            pygame.time.delay(100)
-            self._handle_events()
-
-
-
     # def _run_in_ai_mode(self):
+    #     move_number = 0
+    #     # wins = 0
+    #     # game_overs = 0
+    #     # win = False
     #     valid_game = True
     #     while True:
     #         if(self.paused):
@@ -284,16 +255,43 @@ class Game:
     #         self.matrix, valid_game, new_score = self.mcts.ai_move(self.matrix, number_of_simulations, search_length)
     #         if valid_game:
     #             self.score += new_score
+    #             # if(2048 in self.matrix):
+    #             #     win = True
     #             self._add_new_tile()
     #         else:
+    #             # if(win):
+    #             #     wins += 1
+    #             # else:
+    #             #     game_overs += 1
+    #             # ic(wins)
+    #             # ic(game_overs)
+    #             win = False
     #             self._init_game()
     #         self._update()
     #         pygame.time.delay(100)
     #         self._handle_events()
 
 
+
+    def _run_in_ai_mode(self):
+        while True:
+            if(self.paused):
+                self._handle_events()
+                continue
+            
+            bestNextMove = "_" + self.ai.getNextBestMoveExpectiminimax(self.matrix, self.pool, depth = 2)
+            
+            self._move(bestNextMove)
+            self._update()
+            if(self.game_over):
+                self._init_game()
+            self._handle_events()
+
+
+
     def _update(self):
         if(self.score > self.high_score):
+            self.high_score = self.score
             self.high_score = self.score
         self.menu_ui.update(self.score, self.high_score)
         if(not self.game_over and not self.win):
