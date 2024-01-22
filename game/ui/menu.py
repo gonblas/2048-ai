@@ -20,13 +20,13 @@ class Menu:
         
         high_score_rect = pygame.Rect(POS_X_MENU , POS_Y_MENU*2+padding , MENU_WIDTH, MENU_HEIGHT)
         
-        repeat_rect = pygame.Rect(POS_X_MENU - (MENU_WIDTH + padding), POS_Y_MENU - padding/2, MENU_WIDTH*2 + padding, MENU_HEIGHT-padding/2)
+        repeat_rect = pygame.Rect(POS_X_MENU - (MENU_WIDTH + padding), POS_Y_MENU - padding, MENU_WIDTH*2 + padding, MENU_HEIGHT-padding/2)
 
         pygame.draw.rect(self.screen, SCORE_BOX_COLOR, score_rect, border_radius=border_radius)
         pygame.draw.rect(self.screen, SCORE_BOX_COLOR, high_score_rect, border_radius=border_radius)
         pygame.draw.rect(self.screen, BUTTON_COLOR, repeat_rect, border_radius=border_radius)
 
-        font1 = pygame.font.Font(FONT_MEDIUM, 14) 
+        font1 = pygame.font.Font(FONT_BOLD, 16) 
         font2 = pygame.font.Font(FONT_MEDIUM, 20) 
 
         score_text = font1.render(f"SCORE", True, TEXT_COLOR)

@@ -14,7 +14,7 @@ class Board:
         self.spacing = max(2, 12 - self.size)
         self.block_size = (GRID_SIZE - (self.size + 1) * self.spacing) / self.size
         self.screen = screen
-        self.rect_outer = pygame.Rect(43, 143, GRID_SIZE + 4, GRID_SIZE + 4)  # Ajustado rectángulo exterior
+        self.rect_outer = pygame.Rect(POS_X_BOARD, POS_Y_BOARD, GRID_SIZE + 4, GRID_SIZE + 4)  # Ajustado rectángulo exterior
         self.border_radius = 3  # Ajusta el radio según sea necesario
         self.rect_outer_color = pygame.Color(GRID_COLOR)
 
@@ -25,7 +25,7 @@ class Board:
 
         # Dibujar cuadrados con colores y números por fila con separación
         for row in range(self.size):
-            y = 145 + self.spacing + row * (self.block_size + self.spacing)
+            y = (POS_Y_BOARD + 2) + self.spacing + row * (self.block_size + self.spacing)
             for col in range(self.size):
                 x = 45 + self.spacing + col * (self.block_size + self.spacing)
                 square_rect = pygame.Rect(x, y, self.block_size, self.block_size)
@@ -61,7 +61,7 @@ class Board:
         blur_surface = pygame.transform.smoothscale(blur_surface, (GRID_SIZE+4, GRID_SIZE+4))
 
         # Dibuja la superficie difuminada sobre el área del tablero
-        self.screen.blit(blur_surface, (43,143))
+        self.screen.blit(blur_surface, (POS_X_BOARD,POS_Y_BOARD))
         
         #Game Over Title
         font = pygame.font.Font(FONT_BOLD, 60)
@@ -82,7 +82,7 @@ class Board:
     
     def win(self, paint_background: bool = False):
         if(paint_background):
-            self.screen.blit(blur_surface_win, (43,143))
+            self.screen.blit(blur_surface_win, (POS_X_BOARD,POS_Y_BOARD))
         
         #Game Over Title
         font = pygame.font.Font(FONT_BOLD, 60)
