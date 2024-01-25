@@ -1,29 +1,63 @@
 from ai.ai_settings import *
+import numpy as np
 from icecream import ic
 import copy
-import re
 import multiprocessing as mp
 from ai.expectiminimax.functions import *
 from ai.mcts.functions import check_game_over
+import cma
 
 
 class Expectiminimax:
     def __init__(self, size):
         self.size = size
         
-        self.position_multipliers = [[2**13,   2**12, 2**11, 2**10], 
-                                    [2**14, 2**13, 2**12, 2**11],
-                                    [2**15, 2**14,2**13,2**12],
-                                    [2**16,2**15,2**14,2**13]] 
+        self.position_multipliers = [
+            [pow(2, size * i + j) if i % 2 == 0 else pow(2, size * (i + 1) - 1 - j) for j in range(size)]
+            for i in range(size)
+        ]
 
 
-    def snakeHeuristic(self, board):
-        h = 0
+
+    def count_open_squares(self, board):
+        return np.count_nonzero(board == 0)
+
+    def large_values_on_edge_bonus(self, board):
+        bonus = 0
         for i in range(self.size):
             for j in range(self.size):
-                h += board[i][j] * self.position_multipliers[i][j]
-        return h
+                bonus += board[i][j] * self.position_multipliers[i][j]
+        return bonus
 
+    def non_monotonic_penalty(self, board):
+        penalty = 0
+        for row in board:
+            penalty += np.sum(np.diff(row[row > 0]) < 0)
+        for col in board.T:
+            penalty += np.sum(np.diff(col[col > 0]) < 0)
+        return penalty
+
+    def potential_merges(self, board):
+        merges = 0
+        merges += np.sum(board[:, :-1] == board[:, 1:])
+        merges += np.sum(board[:-1, :] == board[1:, :])
+        return merges
+
+    def calculate_heuristic_value(self, board):
+        score = 0
+        score += 2**8 * self.count_open_squares(board) 
+        score += self.large_values_on_edge_bonus(board) 
+        score -= 2**4 * self.non_monotonic_penalty(board) 
+        score += 2**6 * self.potential_merges(board) 
+        return score
+
+
+        # def snakeHeuristic(self, board):
+        #     h = 0
+        #     for i in range(self.size):
+        #         for j in range(self.size):
+        #             h += board[i][j] * self.position_multipliers[i][j]
+        #     return h
 
 
     def getNextBestMoveExpectiminimax(self, board, pool, depth=2):
@@ -52,8 +86,8 @@ class Expectiminimax:
         if check_game_over(board):
             return -INF, move_name
         elif depth < 0:
-            return self.snakeHeuristic(board), move_name
-
+            return self.calculate_heuristic_value(board), move_name
+        
         a = 0
         if depth != int(depth):
             # Player's turn, pick max
@@ -74,4 +108,5 @@ class Expectiminimax:
                 a += 1.0 / len(openTiles) * self.expectiminimax(board, depth - 0.5, move_name)[0]
                 board = add_new_tile(matrix=board, pos=addTileLoc)
         return a, move_name
+
 

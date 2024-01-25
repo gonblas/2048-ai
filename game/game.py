@@ -9,8 +9,9 @@ from game.ui.pregame import Pregame
 from game.ui.board import Board
 from game.ui.menu import Menu
 from game.settings import *
-from ai.mcts_ai import MCTS_AI
+from ai.mcts.mcts_ai import MCTS_AI
 from ai.expectiminimax.expectiminimax import *
+from ai.plot import Plot
 
 
 
@@ -44,7 +45,7 @@ class Game:
         pygame.init()
         self.menu_ui = Menu(self.screen)
         self.board_ui = Board(size = self.size, screen = self.screen)
-        
+        self.games = 1
         # Init board and _run
         self._init_game()
 
@@ -58,7 +59,6 @@ class Game:
         return title_rect
 
 
-
     def _init_game(self):
         self.game_over = False
         self.win = False
@@ -66,9 +66,7 @@ class Game:
         self.matrix = np.zeros((self.size, self.size), dtype=int)
         self.old_matrix = np.zeros((self.size, self.size), dtype=int)
         self._add_new_tile(2)
-        self._add_new_tile(256*2)
-        self._add_new_tile(1024)
-        self._add_new_tile(16384)
+        self._add_new_tile(2)
         self.score = 0
         self._update()
         if(self.user_mode):
@@ -76,10 +74,15 @@ class Game:
         else:
             # self.mcts = MCTS_AI(self.size)
             self.ai = Expectiminimax(self.size)
-            self.pool = mp.Pool(processes=2)
+            self.pool = mp.Pool(processes=self._get_num_cores())
             self.paused = False
             self._run_in_ai_mode()
 
+    def _get_num_cores(self):
+        try:
+            return mp.cpu_count()
+        except (NotImplementedError, OSError):
+            return 2  
 
 
     def _add_new_tile(self, number = None):
@@ -224,7 +227,7 @@ class Game:
         return False 
 
     def _check_game_over(self):
-        if(not self.first_time_won and any(2048 in row for row in self.matrix)):
+        if(self.user_mode and not self.first_time_won and any(2048 in row for row in self.matrix)):
             self.board_ui.update(matrix = self.matrix)
             self.continue_button, self.play_again_button = self.board_ui.win(paint_background = True)
             self.win = True
@@ -276,19 +279,36 @@ class Game:
 
 
     def _run_in_ai_mode(self):
+        # plot_scores = []
+        # plot_mean_scores = []
+        # total_score = 0
+        cur_depth = 2
+        # weights_optimization_interval = 3  
+
         while True:
-            if(self.paused):
+            if self.paused:
                 self._handle_events()
                 continue
-            
-            bestNextMove = "_" + self.ai.getNextBestMoveExpectiminimax(self.matrix, self.pool, depth = 2)
-            
+
+            bestNextMove = "_" + self.ai.getNextBestMoveExpectiminimax(self.matrix, self.pool, depth=cur_depth)
+
             self._move(bestNextMove)
             self._update()
-            if(self.game_over):
+            
+            if self.game_over:
+                print(f"game: {self.games} | score: {self.score}")
+                cur_depth = 1
+                # plot_scores.append(self.score)
+                # total_score += self.score
+                # mean_score = total_score / self.games
+                # plot_mean_scores.append(mean_score)
+                self.games += 1
                 self._init_game()
+            
             self._handle_events()
-
+            
+            # if cur_depth < 2 and self.score > 40000:
+            #     cur_depth = 2
 
 
     def _update(self):
@@ -300,3 +320,4 @@ class Game:
             self.board_ui.update(matrix = self.matrix)
         pygame.display.flip()
         self.clock.tick(FPS)
+
