@@ -5,12 +5,12 @@ import pygame
 import random
 import sys
 
+from ai.expectiminimax.expectiminimax import *
 from game.ui.pregame import Pregame
+from ai.mcts.mcts_ai import MCTS_AI
 from game.ui.board import Board
 from game.ui.menu import Menu
 from game.settings import *
-from ai.mcts.mcts_ai import MCTS_AI
-from ai.expectiminimax.expectiminimax import *
 from ai.plot import Plot
 
 
@@ -45,7 +45,10 @@ class Game:
         pygame.init()
         self.menu_ui = Menu(self.screen)
         self.board_ui = Board(size = self.size, screen = self.screen)
+
         self.games = 1
+        self.total_score = 0
+        
         # Init board and _run
         self._init_game()
 
@@ -282,7 +285,7 @@ class Game:
         # plot_scores = []
         # plot_mean_scores = []
         # total_score = 0
-        cur_depth = 2
+        cur_depth = 1
         # weights_optimization_interval = 3  
 
         while True:
@@ -296,7 +299,8 @@ class Game:
             self._update()
             
             if self.game_over:
-                print(f"game: {self.games} | score: {self.score}")
+                self.total_score += self.score
+                print(f"game: {self.games} | score: {self.score} | mean: {self.total_score/self.games}")
                 cur_depth = 1
                 # plot_scores.append(self.score)
                 # total_score += self.score
@@ -307,8 +311,8 @@ class Game:
             
             self._handle_events()
             
-            # if cur_depth < 2 and self.score > 40000:
-            #     cur_depth = 2
+            if self.size <= 5 and cur_depth < 2 and self.score > 40000:
+                cur_depth = 2
 
 
     def _update(self):
@@ -320,4 +324,3 @@ class Game:
             self.board_ui.update(matrix = self.matrix)
         pygame.display.flip()
         self.clock.tick(FPS)
-

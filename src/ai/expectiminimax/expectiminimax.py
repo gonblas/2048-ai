@@ -45,19 +45,12 @@ class Expectiminimax:
 
     def calculate_heuristic_value(self, board):
         score = 0
-        score += 2**8 * self.count_open_squares(board) 
+        # score += 2**(self.size*2) * self.count_open_squares(board) 
         score += self.large_values_on_edge_bonus(board) 
-        score -= 2**4 * self.non_monotonic_penalty(board) 
-        score += 2**6 * self.potential_merges(board) 
+        # score -= 2**8 * self.non_monotonic_penalty(board) 
+        # score += 2**10 * self.potential_merges(board) 
         return score
 
-
-        # def snakeHeuristic(self, board):
-        #     h = 0
-        #     for i in range(self.size):
-        #         for j in range(self.size):
-        #             h += board[i][j] * self.position_multipliers[i][j]
-        #     return h
 
 
     def getNextBestMoveExpectiminimax(self, board, pool, depth=2):
