@@ -1,12 +1,13 @@
 # 2048 AI
 
 
-
 ![Python Version](https://img.shields.io/badge/python-3.11.5-blue.svg)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 ![Project Status](https://img.shields.io/badge/status-finished-brightgreen.svg)
 
 [English](https://github.com/gonblas/2048-ai/blob/main/README.md) | [Español](https://github.com/gonblas/2048-ai/blob/main/README_es.md)
+
+
 
 # Descripción del Juego
 
