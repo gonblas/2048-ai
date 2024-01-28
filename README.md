@@ -1,136 +1,131 @@
 # 2048 AI
 
-
-
 ![Python Version](https://img.shields.io/badge/python-3.11.5-blue.svg)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 ![Project Status](https://img.shields.io/badge/status-finished-brightgreen.svg)
 
 [English](https://github.com/gonblas/2048-ai/blob/main/README.md) | [Español](https://github.com/gonblas/2048-ai/blob/main/README_es.md)
 
-# Descripción del Juego
+# Game Description
 
-El **[2048](https://en.wikipedia.org/wiki/2048_(video_game))** es un fascinante juego de rompecabezas en el que el objetivo principal es combinar bloques numerados para alcanzar la codiciada casilla 2048. El tablero se presenta como una cuadrícula, y la mecánica central del juego es la combinación de bloques.
+**[2048](https://en.wikipedia.org/wiki/2048_(video_game))** is a captivating puzzle game where the main goal is to combine numbered blocks to reach the coveted 2048 tile. The board is presented as a grid, and the central game mechanic involves merging blocks.
 
-## Cómo Se Juega
+## How to Play
 
-**Instrucciones Básicas:**
-- Utiliza las flechas del teclado (arriba, abajo, izquierda, derecha) para mover las casillas en la cuadrícula.
-- Cuando dos casillas con el mismo número colisionan, se fusionan en una única casilla con el valor de la suma.
+**Basic Instructions:**
+- Use the keyboard arrows (up, down, left, right) to move tiles on the grid.
+- When two tiles with the same number collide, they merge into a single tile with the sum value.
 
-**Detalles Adicionales:**
-- **Tamaño del Tablero:** El juego permite la personalización del tamaño del tablero, ofreciendo opciones como 3x3, 4x4, 5x5, 6x6 y 8x8. Cada tamaño tiene su propio nombre correspondiente.
+**Additional Details:**
+- **Board Size:** The game allows customization of the board size, offering options like 3x3, 4x4, 5x5, 6x6, and 8x8. Each size has its corresponding name.
   - 3x3: Tiny
   - 4x4: Classic
   - 5x5: Big
   - 6x6: Bigger
   - 8x8: Huge
 
-- **Condición de derrota:** El juego finaliza cuando no hay movimientos posibles que permitan combinar bloques.
+- **Loss Condition:** The game ends when no possible moves allow merging blocks.
 
-**Modos de Juego:**
-- **Modo Usuario:** Experimenta el desafío y la diversión del juego tomando el control directo y aplicando tus habilidades de estrategia.
-- **Modo AI:** Delega el desafío a una inteligencia artificial avanzada. Observa cómo el algoritmo busca la mejor combinación de bloques y planifica movimientos eficientes. Puedes presionar la barra espaciadora para parar a la IA.
+**Game Modes:**
+- **User Mode:** Experience the challenge and fun of the game by taking direct control and applying your strategic skills.
+- **AI Mode:** Delegate the challenge to an advanced artificial intelligence. Watch how the algorithm seeks the best block combinations and plans efficient moves. You can press the space bar to pause the AI.
 
-## Inteligencia Artificial
+## Artificial Intelligence
 
 ### Monte Carlo Tree Search
 
-#### Descripción
+#### Description
 
-La [búsqueda de árboles Monte Carlo](https://en.wikipedia.org/wiki/Monte_Carlo_tree_search) (MCTS) es un algoritmo de búsqueda heurística utilizado en procesos de toma de decisiones, especialmente en software diseñado para jugar juegos de mesa. En el contexto de juegos como el 2048, MCTS se emplea para resolver el árbol de juego.
+[Monte Carlo Tree Search](https://en.wikipedia.org/wiki/Monte_Carlo_tree_search) (MCTS) is a heuristic search algorithm used in decision-making processes, especially in software designed for playing board games. In the context of games like 2048, MCTS is employed to solve the game tree.
 
-El enfoque principal de MCTS radica en analizar los movimientos más prometedores, expandiendo el árbol de búsqueda mediante el muestreo aleatorio del espacio de búsqueda. En cada simulación, el juego se lleva a cabo hasta el final seleccionando movimientos al azar. El resultado final de cada simulación se utiliza para ponderar los nodos en el árbol de juego, de modo que los nodos mejores tienen más probabilidades de ser elegidos en simulaciones futuras.
+The primary focus of MCTS lies in analyzing the most promising moves, expanding the search tree by randomly sampling the search space. In each simulation, the game is played out to the end by randomly selecting moves. The final outcome of each simulation is used to weigh the nodes in the game tree, so better nodes are more likely to be chosen in future simulations.
 
 ![mcts_diagram](assets/mcts_diagram.svg)
 
+Each round of Monte Carlo Tree Search consists of four steps:
 
-Cada ronda de búsqueda de árboles Monte Carlo consta de cuatro pasos:
+#### How It's Applied in the 2048 Game
 
+1. **Selection:** It starts at the root node (current game state) and recursively selects descendant nodes based on a selection strategy.
 
-#### Cómo se Aplica en el Juego 2048
+2. **Expansion:** If the selected node does not represent a final game state, it expands by generating nodes corresponding to possible moves from that state.
 
-1. **Selección:** Comienza en el nodo raíz (estado actual del juego) y selecciona recursivamente nodos descendientes basándose en una estrategia de selección.
+3. **Simulation:** Complete games are simulated from the newly created nodes (or already existing nodes) to a terminal state, using random or heuristic strategies.
 
-2. **Expansión:** Si el nodo seleccionado no representa un estado final del juego, se expande generando los nodos correspondientes a los posibles movimientos desde ese estado.
+4. **Backpropagation:** The result information from the simulation is propagated upward through the tree, updating the statistics of visited nodes.
 
-3. **Simulación:** Se simulan juegos completos desde los nodos recién creados (o nodos ya existentes) hasta un estado terminal, utilizando estrategias aleatorias o heurísticas.
+5. **Move Selection:** Finally, the move that leads to the most promising child node is chosen based on the statistics collected during the simulations.
 
-4. **Retropropagación:** La información del resultado de la simulación se propaga hacia arriba a través del árbol, actualizando las estadísticas de los nodos visitados.
+### Expectiminimax Algorithm
 
-5. **Selección de Jugada:** Finalmente, se elige la jugada que lleva al nodo hijo más prometedor basándose en las estadísticas recopiladas durante las simulaciones.
+The [Expectiminimax Algorithm](https://en.wikipedia.org/wiki/Expectiminimax) is an extension of the minimax algorithm designed to handle nodes of probability in games or problems with uncertainty. It is used in situations where future events are uncertain and all possibilities must be considered, weighted by their probability. In 2048, there is randomness in the tile number (90% chance of getting a 2, and 10% chance of getting a 4) and its position (which is randomly chosen from all empty positions).
 
-### Algoritmo Expectiminimax
-
-El [Algoritmo Expectiminimax](https://en.wikipedia.org/wiki/Expectiminimax) es una extensión del algoritmo minimax, diseñado para manejar nodos de probabilidad en juegos o problemas con incertidumbre. Se utiliza en situaciones donde los eventos futuros son inciertos y se deben considerar todas las posibilidades ponderadas por su probabilidad. En el 2048, existe una aleatoriedad en el numero ficha que sale (90% de posibilidad de que salga el 2, y 10% de que salga el 4) y su posicion (la cual es una aleatoria entre todas las que se encuentran vacias).
-
-Para controlar la complejidad del algoritmo, se introduce el concepto de "depth". La profundidad del árbol de búsqueda determina hasta qué punto se explorarán las posibles secuencias de movimientos. Un mayor valor de profundidad implica una exploración más exhaustiva pero a expensas de un mayor costo computacional.
+To control the complexity of the algorithm, the concept of "depth" is introduced. The depth of the search tree determines how far possible sequences of moves will be explored. A higher depth value implies more thorough exploration but at the expense of higher computational cost.
 
 ![expectiminimax](assets/expectiminimax_diagram.svg)
 
+#### How It's Applied in the 2048 Game
 
+1. **Game Tree Generation:** A tree representing all possible sequences of moves and game states, including the probabilities of generating new blocks, is built.
 
-#### Cómo se Aplica en el Juego 2048s
+2. **Position Evaluation:** Terminal game positions are evaluated, and utility values are assigned to each state, considering the score and other relevant factors.
 
-1. **Generación del Árbol de Juego:** Se construye un árbol que representa todas las posibles secuencias de movimientos y estados del juego, incluyendo las probabilidades de generación de nuevos bloques.
+   - Number of Open Tiles: The number of open tiles is considered, influencing the score.
 
-2. **Evaluación de Posiciones:** Se evalúan las posiciones terminales del juego y se asignan valores de utilidad a cada estado, considerando la puntuación y otros factores relevantes.
+   - **Bonus for Large Values Following the Shape of a Snake:** A bonus is awarded for large values located on the edges of the board.
 
-    - Número de Casillas Abiertas: Se considera la cantidad de casillas abiertas, influyendo en la puntuación.
+   - Penalty for Lack of Monotonicity in Rows and Columns: There is a penalty for lack of monotonicity in rows and columns.
 
-    - **Bonificación por Grandes Valores Siguiendo La Forma de un Snake:** Se otorga una bonificación por grandes valores ubicados en los bordes del tablero.
+   - Bonus for the Number of Potential Merges: A bonus is awarded for the number of potential merges.
+   
+   Only what's in bold actually affects the final heuristic value of each move.
 
-    - Penalización por Falta de Monotonía en Filas y Columnas: Existe una penalización por falta de monotonía en filas y columnas.
+3. **Probability Propagation:** In probability nodes (where new blocks are generated), the probability of generating each block is taken into account, and the expected value is weighted.
 
-    - Bonificación por Cantidad de Fusiones Potenciales: Se otorga una bonificación por la cantidad de fusiones potenciales.
-  
-  Solo aquello en negrita es lo que realmente afecta al valor heuristico final de cada movimiento.
+4. **Move Choice:** The move that maximizes (or minimizes, depending on the turn) the expected value is chosen, considering all possible sequences of moves and their probabilities.
 
-3. **Propagación de Probabilidades:** En los nodos de probabilidad (donde se generan nuevos bloques), se toma en cuenta la probabilidad de generación de cada bloque y se pondera el valor esperado.
+## How to Run the Code
 
-4. **Elección de Jugada:** Se elige la jugada que maximiza (o minimiza, según el turno) el valor esperado, considerando todas las posibles secuencias de movimientos y sus probabilidades.
+### Prerequisites
 
+Before using this repository, make sure to meet the following requirements:
 
+- Have [Python](https://www.python.org/) installed on your system. Python **3.11.5** was used.
+- Have the `virtualenv` tool installed (you can install it by running `pip install virtualenv`).
 
+### Execution Steps
 
-## Cómo Ejecutar el Código
-
-### Requisitos previos
-
-Antes de utilizar este repositorio, asegúrate de cumplir con los siguientes requisitos:
-
-- Tener [Python](https://www.python.org/) instalado en tu sistema. Se utilizo python **3.11.5**.
-- Contar con la herramienta `virtualenv` instalada (puedes instalarla ejecutando `pip install virtualenv`).
-
-
-### Pasos para la ejecución
-
-1. Clona el repositorio a tu máquina local e ingresa en la carpeta.
+1. Clone the repository to your local machine and navigate to the folder.
    ```bash
     git clone https://github.com/gonblas/2048-ai.git
 
     cd 2048-ai
    ```
 
-2. Crea un entorno virtual con Python.
+2. Create a virtual environment with Python.
    ```bash
     python -m venv venv
    ```
-3. Activa el entorno virtual.
+3. Activate the virtual environment.
    ```bash
-    ## En Windows:
-    .\venv\Scripts\activate
+    ## On Windows:
+   .\venv\Scripts\activate
 
-    ## En Linux/macOS:
-    source venv/bin/activate
+   ## On Linux/macOS:
+   source venv/bin/activate
    ```
-4. Instala las dependencias.
+4. Install the dependencies.
    ```bash
     pip install -r requirements.txt
    ```
-5. Ejecuta el archivo [main.py](https://github.com/gonblas/2048-ai/blob/main/src/main.py).
+5. Run the [main.py](https://github.com/gonblas/2048-ai/blob/main/src/main.py) file.
     ```bash
     python src/main.py
    ```
+
+___
+
+Feel free to modify or expand the content according to your preferences. This README provides a detailed overview of your project, making it more informative and user-friendly.
+
 
 

@@ -134,4 +134,6 @@ Antes de utilizar este repositorio, asegúrate de cumplir con los siguientes req
     python src/main.py
    ```
 
+___
 
+Siéntete libre de modificar o expandir el contenido según tus preferencias. Este README proporciona una descripción detallada de tu proyecto, haciéndolo más informativo y fácil de usar.
